@@ -254,10 +254,11 @@ void wifi_deinit(void)
 	cnt_heartbag = 0;																																														//切wifi时清空心跳计数器
 	osDelay(100);	
 	atk_8266_send_cmd("AT",0xFFFF);
-	osDelay(200);	
+	osDelay(500);	
 	atk_8266_send_cmd("AT+RST",0xFFFF);																																					//设置WIFI STA模式
 	osDelay(3000);
 	atk_8266_send_cmd("AT+WJAP=0,0",0xffff);
+	osDelay(500);
 //	atk_8266_send_cmd("AT+WMODE=0,0",0xffff);
 	printf("WIFI-Reset-powerdown");
 	return;
