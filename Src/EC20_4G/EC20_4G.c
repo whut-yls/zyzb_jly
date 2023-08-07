@@ -160,7 +160,7 @@ void EC200MqttClientTask(void const * argument)	//EC20配置初始化，连接MQTT服务器
 					osDelay(10);
 					HAL_UART_Transmit_DMA(&huart6,(char*)buf4g_ack_head,strlen(buf4g_ack_head));
 					osDelay (50);
-					HAL_UART_Transmit_DMA(&huart6,(char*)gAck,strlen(gAck));
+					HAL_UART_Transmit_DMA(&huart6,(char*)messageSend.payload,messageSend.payloadlen);
 					osDelay(10);	
 				}	
 			}

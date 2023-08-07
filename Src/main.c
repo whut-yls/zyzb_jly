@@ -327,7 +327,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-	gGlobalData.current_time = 0;          //没用到
 	gGlobalData.current_treatNums = 0;
 	gGlobalData.useWorkArg[0].timeTreat = 0;
 	gGlobalData.useWorkArg[0].waitTime = 0;
@@ -418,7 +417,6 @@ int main(void)
 
 	//-----------------------DMASPI发送测试-----------------------//
 	DAC8831_Set_Data(0x7fff);       //初始化一下
-//	DAC8831_Set_Data_Dma(ch1buf,sizeof(ch1buf)/2,5000);
 	//-----------------------音乐测试-----------------------//
 //		Send_ComMusic(3);
 

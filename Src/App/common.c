@@ -28,6 +28,7 @@ static char gPressPluseCnt=0;
 static char gGasPluseCnt=0;
 
 char gAck[JSON_ACK_MAX_LEN]={0,};
+//char gAck_heart[JSON_ACK_MAX_LEN]={0,};
 
 void close_Dev_Out(void)
 {
