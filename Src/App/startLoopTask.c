@@ -10,7 +10,7 @@
 #include "myAdc.h"
 
 #include "ad9833.h"
-
+#include "pca9554.h"
 #include "AHT15.h"
 #include "MS5637.h"
 
@@ -53,13 +53,14 @@ void startLoopTask(void const * argument)
 	/*开始adc dma循环采集*/
 //	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
 	
-
+#if 0
 	/*气压传感器初始化*/
 	sensor_init();
 	/*电池采集传感器初始化*/
 	/*温湿度传感器初始化*/
 	DataCollectInit();
-	while(1)
+#endif
+while(1)
 	{
 		
 		Key_input=key_scan();
@@ -96,6 +97,7 @@ void startLoopTask(void const * argument)
 			}
 
 		}
+#if 0
 		/*温度湿度采集*/
 		if(SensorCnt1==0||SensorCnt1>=10)	//3s
 		{
@@ -148,7 +150,7 @@ void startLoopTask(void const * argument)
 				}
 		
 		}
-		#if 1
+		#if 0
 		/****气压传感器**/
 		if(SensorCnt2==0||SensorCnt2>=10) //3s
 		{
@@ -181,16 +183,47 @@ void startLoopTask(void const * argument)
 			DataCollectExecute();
 		}
 		#endif
+#endif
 		/*电量采集*/
 		/*****/
 		
 		/*led运行控制*/
-		if(ledCnt>=5)
+		if(ledCnt>=1)    //5
 		{
 			ledCnt=0;
 			run_led();
-			
-			
+#if 0                    //测试继电器子板切换下发           
+			if(gGlobalData.curWorkState == WORK_START){
+            	set_channle_status(gGlobalData.channelPos,DIR_OUT,sON);
+                osDelay(50);
+                set_channle_status(gGlobalData.channelPos+8,DIR_IN,sON);
+                osDelay(1000);
+//            	set_channle_status(gGlobalData.channelPos,DIR_OUT,sOFF);
+//                osDelay(50);
+//                set_channle_status(gGlobalData.channelPos+8,DIR_IN,sOFF);
+                HAL_PCA9554_outputAll(0);
+                osDelay(1000);
+            	set_channle_status(gGlobalData.channelPos+8,DIR_OUT,sON);
+                osDelay(50);
+                set_channle_status(gGlobalData.channelPos,DIR_IN,sON);
+                osDelay(1000);
+                HAL_PCA9554_outputAll(0);
+                
+            }
+			else if(gGlobalData.curWorkState == WORK_STOP){
+            
+            }
+			else if(gGlobalData.curWorkState == WORK_PAUSE)
+					 HAL_PCA9554_init();  
+            
+			if(gGlobalData.channelPos == 8)
+					gGlobalData.channelPos =17;
+			else if(gGlobalData.channelPos == 24)
+				 gGlobalData.channelPos=1; 
+			else
+					gGlobalData.channelPos++;
+#endif
+            
 		}
 		if(pingCnt>=20)
 		{

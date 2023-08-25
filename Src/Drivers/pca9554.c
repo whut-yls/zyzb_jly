@@ -8,12 +8,16 @@
 #include "pca9554.h"
 #include "cmsis_os.h"
 #include "main.h"
+#include "I2C.h"//里面包含iic.h
 
 bool HAL_PCA9554_init(void)
 {
 	uint8_t send[2]={0x03,0x00};
 
 	for(int i=0;i<8;i++){
+
+//        Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
+        Set_I2c_Register_Clear_Reset();
 		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+(i*2),send,sizeof(send),0xFff)!=HAL_OK){
 		return false;
 		}
@@ -29,8 +33,10 @@ bool HAL_PCA9554_readIn(uint8_t adr,uint8_t* data)
 {
 	uint8_t send[1]={0x01};
 	uint8_t oldVal=0;
+    Set_I2c_Register_Clear_Reset();
 	if(HAL_I2C_Master_Transmit(&hi2c2,adr,send,1,0xFff) == HAL_OK)
 	{
+        Set_I2c_Register_Clear_Reset();
 		if(HAL_I2C_Master_Receive(&hi2c2,adr,&oldVal,1,0xFFF) != HAL_OK)
 		{
 			return false;
@@ -50,6 +56,8 @@ bool HAL_PCA9554_outputAll(uint8_t data)
 	uint8_t send[2]={0x01,data};
 
 	for(int i=0;i<8;i++){
+//        Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
+        Set_I2c_Register_Clear_Reset();
 		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+i*2,send,sizeof(send),0xFff)!=HAL_OK){
 		return false;
 		}
@@ -100,11 +108,6 @@ bool set_channle_status(uint8_t channel,uint8_t dir,uint8_t status)
 	{
 		HAL_PCA9554_outputAll(0);
 	}else{	//指定通道
-//		if(HAL_PCA9554_readIn(address,&oldVal)==true)
-//		{
-//		}else{
-//			oldVal=0;
-//		}
 
 		//地址查找
 		if(channel>0&&channel<=4)
@@ -173,20 +176,32 @@ bool set_channle_status(uint8_t channel,uint8_t dir,uint8_t status)
 			//某组的哪个引脚号
 			sNum=channel*2;	
 		}
-		
+//        if(status==sOFF){            
+//            Device_Write_One_Byte(address,send[0],0);
+//            return true;
+//        }
+//        else
+//            oldVal=0;
+        
 		if(HAL_PCA9554_readIn(address,&oldVal)==true)
 		{
 		}else{
 			oldVal=0;
 		}
+        
 		update_oldValue(sNum,dir,status,&oldVal);
 	}
 	//写操作
 	send[1]=oldVal;
+    
+//    Device_Write_One_Byte(address,send[0],send[1]);
+    
+    Set_I2c_Register_Clear_Reset();
 	if(HAL_I2C_Master_Transmit(&hi2c2,address,send,sizeof(send),0xFff)!=HAL_OK){
 		return false;
 	}
 	return true;
+
 }
 
 //配置经络仪工作模式
@@ -201,38 +216,41 @@ bool set_sampleMode(uint8_t mode)
 	switch(mode)
 	{
 		case MODE_ZT:	//(IO1_0 IO2_1 IO10-14打开 IO6打开 IO4打开(交流通) IO3_1 IO5_0 IO6_1 IO7_0 IO8_0 IO9_0) 
-			WriteOUT1(GPIO_PIN_RESET);
-			WriteOUT2(GPIO_PIN_SET);
-			WriteOUT3(GPIO_PIN_RESET);
-			WriteOUT4(GPIO_PIN_RESET);
-			WriteOUT5(GPIO_PIN_RESET);
-			WriteOUT6(GPIO_PIN_SET); 
-			WriteOUT7(GPIO_PIN_RESET);      //debug    RESET
-			WriteOUT8(GPIO_PIN_RESET);       //debug    RESET
+			WriteOUT1(GPIO_PIN_RESET);       //开启治疗输出到Heal脚
+			WriteOUT2(GPIO_PIN_SET);         //开启adc采集信号测量连通
+//			WriteOUT3(GPIO_PIN_RESET);
+//			WriteOUT4(GPIO_PIN_RESET);
+//			WriteOUT5(GPIO_PIN_RESET);       //最开始的治疗继电器，也用不到给注释掉 2023/8/11 by yls
+			WriteOUT6(GPIO_PIN_SET);         //开启大椎5v输出
+        
+            WriteOUT7(GPIO_PIN_RESET);       //7 8 9当时写来可控采集的挡位的，现在不用可调了全置0
+			WriteOUT8(GPIO_PIN_RESET);      
 			WriteOUT9(GPIO_PIN_RESET);
-			WriteOUT10(GPIO_PIN_SET);
-			WriteOUT11(GPIO_PIN_SET);
-			WriteOUT12(GPIO_PIN_SET);
-			WriteOUT13(GPIO_PIN_SET);
-			WriteOUT14(GPIO_PIN_SET);
+        
+//			WriteOUT10(GPIO_PIN_SET);        //原理图没写的io口 3 4 10 11 12 14  2023/8/11 by yls
+//			WriteOUT11(GPIO_PIN_SET);
+//			WriteOUT12(GPIO_PIN_SET);
+        
+//			WriteOUT13(GPIO_PIN_SET);           //这个改灯了      
+//			WriteOUT14(GPIO_PIN_SET);          //这个原理图也没有
 		
 			WriteOUT_Mode(GPIO_PIN_RESET);
 			break;
 		case MODE_JB:	//(IO1_0 IO2_1 IO10-14关闭 IO6打开 IO4打开(交流通) IO3_1 IO5_0 IO6_1 IO7_0 IO8_0 IO9_0)
 			WriteOUT1(GPIO_PIN_RESET);
 			WriteOUT2(GPIO_PIN_SET);
-			WriteOUT3(GPIO_PIN_RESET);
-			WriteOUT4(GPIO_PIN_RESET);
-			WriteOUT5(GPIO_PIN_RESET);
+//			WriteOUT3(GPIO_PIN_RESET);
+//			WriteOUT4(GPIO_PIN_RESET);
+//			WriteOUT5(GPIO_PIN_RESET);
 			WriteOUT6(GPIO_PIN_SET);
 			WriteOUT7(GPIO_PIN_RESET);
 			WriteOUT8(GPIO_PIN_RESET);
 			WriteOUT9(GPIO_PIN_RESET);
-			WriteOUT10(GPIO_PIN_RESET);
-			WriteOUT11(GPIO_PIN_RESET);
-			WriteOUT12(GPIO_PIN_RESET);
-			WriteOUT13(GPIO_PIN_RESET);
-			WriteOUT14(GPIO_PIN_RESET);
+//			WriteOUT10(GPIO_PIN_RESET);
+//			WriteOUT11(GPIO_PIN_RESET);
+//			WriteOUT12(GPIO_PIN_RESET);
+//			WriteOUT13(GPIO_PIN_RESET);            //这个改灯了
+//			WriteOUT14(GPIO_PIN_RESET);
 		
 			WriteOUT_Mode(GPIO_PIN_RESET);
 			break;
@@ -256,41 +274,41 @@ bool set_sampleMode(uint8_t mode)
 //		
 //			WriteOUT_Mode(GPIO_PIN_SET);
 //			break;
-		case MODE_ZL:	//（IO1_1(大椎端子) IO2_1 IO3_1(交流通路)   IO4_1 IO5_0  IO6_0 IO789可配置 IO10-14_0）
-			WriteOUT1(GPIO_PIN_SET);
-			WriteOUT2(GPIO_PIN_RESET);
-			WriteOUT3(GPIO_PIN_SET);
-			WriteOUT4(GPIO_PIN_SET);
-			WriteOUT5(GPIO_PIN_SET);
-			WriteOUT6(GPIO_PIN_RESET);
+		case MODE_ZL:	//（IO1_1(大椎端子) IO2_1 IO3_1(交流通路)   IO4_1 IO5_0  IO6_0 IO789可配置 IO10-14_0）  3 4没用到
+			WriteOUT1(GPIO_PIN_SET);           //开启治疗到heal脚
+			WriteOUT2(GPIO_PIN_RESET);         //关闭adc采样连通
+//			WriteOUT3(GPIO_PIN_SET);
+//			WriteOUT4(GPIO_PIN_SET);
+//			WriteOUT5(GPIO_PIN_SET);
+			WriteOUT6(GPIO_PIN_RESET);         //关闭大椎5v输出
 		
 			WriteOUT7(GPIO_PIN_RESET);
 			WriteOUT8(GPIO_PIN_RESET);
 			WriteOUT9(GPIO_PIN_RESET);
 		
-			WriteOUT10(GPIO_PIN_RESET);
-			WriteOUT11(GPIO_PIN_RESET);
-			WriteOUT12(GPIO_PIN_RESET);
-			WriteOUT13(GPIO_PIN_RESET);
-			WriteOUT14(GPIO_PIN_RESET);
+//			WriteOUT10(GPIO_PIN_RESET);
+//			WriteOUT11(GPIO_PIN_RESET);
+//			WriteOUT12(GPIO_PIN_RESET);
+//			WriteOUT13(GPIO_PIN_RESET);          //这个改灯了
+//			WriteOUT14(GPIO_PIN_RESET);
 		
 			WriteOUT_Mode(GPIO_PIN_SET);
 			break;
 		case MODE_CLOSE:	//IO2_0 IO7_0 IO8_0 IO9_0 IO3_0 4 5 6 10-14 1 全断开
 			WriteOUT1(GPIO_PIN_RESET);
 			WriteOUT2(GPIO_PIN_RESET);
-			WriteOUT3(GPIO_PIN_RESET);
-			WriteOUT4(GPIO_PIN_RESET);
-			WriteOUT5(GPIO_PIN_RESET);
+//			WriteOUT3(GPIO_PIN_RESET);
+//			WriteOUT4(GPIO_PIN_RESET);
+//			WriteOUT5(GPIO_PIN_RESET);
 			WriteOUT6(GPIO_PIN_RESET);
 			WriteOUT7(GPIO_PIN_RESET);
 			WriteOUT8(GPIO_PIN_RESET);
 			WriteOUT9(GPIO_PIN_RESET);
-			WriteOUT10(GPIO_PIN_RESET);
-			WriteOUT11(GPIO_PIN_RESET);
-			WriteOUT12(GPIO_PIN_RESET);
-			WriteOUT13(GPIO_PIN_RESET);
-			WriteOUT14(GPIO_PIN_RESET);
+//			WriteOUT10(GPIO_PIN_RESET);
+//			WriteOUT11(GPIO_PIN_RESET);
+//			WriteOUT12(GPIO_PIN_RESET);
+//			WriteOUT13(GPIO_PIN_RESET);        //这个改灯了
+//			WriteOUT14(GPIO_PIN_RESET);
 			WriteOUT_Mode(GPIO_PIN_RESET);
 			break;
 		default:

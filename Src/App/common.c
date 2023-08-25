@@ -577,17 +577,17 @@ void do_work_ctl(uint8_t workMode)
 	uint8_t gbkNum0[13]={0,};
 	switch(workMode){
 		case 1:
-			gGlobalData.cur_heart_state=WORKING;		
+					
 			if(gGlobalData.curWorkState != WORK_START){			
-				 gGlobalData.curWorkState=WORK_START;
+				 gGlobalData.cur_heart_state=WORKING;
+                 gGlobalData.curWorkState=WORK_START;
 					//2023.1.31 WWJZ
 				 if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下暂停后再次开始
-						//HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);
-						set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);
-						set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);
+
 						osDelay(200);
 						send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中	
-						send_LcdOutStatus(1);											 
+						send_LcdOutStatus(1);	
+                        set_sampleMode(MODE_ZL);
 				 }//2023.1.31 WWJZ
 				 osDelay(200);
 				 send_LcdSync(1);  //修改屏幕运行状态
@@ -595,55 +595,49 @@ void do_work_ctl(uint8_t workMode)
 				if(gGlobalData.curWorkMode==WORK_MODE_ZT){
 					osDelay(200);	
 					send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中			
-				}
-//																printf("1\r\n");   
-			}
-			if(gGlobalData.curWorkMode == WORK_MODE_ZT)
-			{
-				set_sampleMode(MODE_ZT);	
-				isCollect=true;
-				break;}
-			set_sampleMode(MODE_ZL);
+                    
+                    set_sampleMode(MODE_ZT);	
+                    isCollect=true;
+                    break;
+                } 
+			}	
 			break;
-		case 2: 
-			gGlobalData.cur_heart_state = PAUSE;
-			
-			gGlobalData.curWorkState=WORK_PAUSE;
-			set_sampleMode(MODE_CLOSE);
-			//2023.1.31 WWJZ
-			if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下暂停
-				set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
-				set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
-			}//2023.1.31 WWJZ
-			osDelay(20);
-			send_LcdSync(0); 
-			osDelay(200);
-			send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
-			send_LcdOutStatus(0);
-			if(gGlobalData.curWorkMode == WORK_MODE_ZT)
-			{
-				isCollect=false;//2023.03.31 ZKM
-			}        
+		case 2:			
+			if(gGlobalData.curWorkState == WORK_START){	
+					gGlobalData.cur_heart_state = PAUSE;
+					gGlobalData.curWorkState=WORK_PAUSE;
+					set_sampleMode(MODE_CLOSE);
+					osDelay(20);
+					send_LcdSync(0); 
+					osDelay(200);
+					send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
+					send_LcdOutStatus(0);
+					if(gGlobalData.curWorkMode == WORK_MODE_ZT)
+					{
+							isCollect=false;//2023.03.31 ZKM
+							Collect_Data_state =true;
+					} 
+			} 
+         
 			break;
 		case 3:
+//			Set_Input_Output(sOFF);
 			Send_Fix_Ack(100,STATUS_OK,"OK");//发送给上位机告诉执行了复位			
 			gGlobalData.cur_heart_state = LEISURE; 
 			gGlobalData.curWorkState=WORK_STOP; 
 			collectDataCount=0;
 			gGlobalData.useWorkArg[gGlobalData.current_treatNums].level=0;
 			gGlobalData.current_treatNums=0;//2023.02.01
-			//2023.1.31 WWJZ
-			if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下复位
 
-				set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
-				 set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
-			}//2023.1.31 WWJZ
 			set_sampleMode(MODE_CLOSE);
 				
 			HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
-			gGlobalData.channelPos=0;
+			
+
 			HAL_PCA9554_outputAll(0);
-			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET); //运行红灯 set灭 reset亮
+        
+			gGlobalData.channelPos=0;
+            HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET); //运行红灯 set灭 reset亮
 			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET); //运行绿灯 set灭 reset亮
 			gGlobalData.curWorkMode=WORK_MODE_WT;
 			gGlobalData.oldWorkMode=gGlobalData.curWorkMode;

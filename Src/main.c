@@ -47,6 +47,7 @@
 #include "Wt2003hx.h"
 #include "timer.h"
 #include "dac8831.h"
+#include "I2C.h"//里面包含iic.h
 
 SemaphoreHandle_t					ConsoleReceive_Semaphore=NULL; 
 SemaphoreHandle_t  	lcdSemaphore = NULL;
@@ -57,6 +58,8 @@ unsigned char RecCom3[COM3_REC_MAX+1];	//pc
 uint16_t 			RecCom3Num=0;
 unsigned char RecCom6[COM6_REC_MAX+1];	//pc
 uint16_t 			RecCom6Num=0;
+unsigned char RecCom2[COM2_REC_MAX];	//pc
+
 uint8_t       RecSen[30];   //接收屏幕返回数据
 uint32_t channelTime = 0;
 bool gUartPcInit=false,gUartPcTc=false;
@@ -155,7 +158,7 @@ uint16_t gADC3_VALUE_F[AD3_NUM];
 
 
 
-
+bool Collect_Data_state=false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -293,6 +296,11 @@ static void vAutoLoadTimerFunc( TimerHandle_t xTimer )
 				gGlobalData.PlusePressData[gGlobalData.currentUnitNum] = gADC3_VALUE[0];
 				gGlobalData.currentUnitNum++;//采集个数++
 				collectDataCount++;//累计采集个数
+				if(gGlobalData.currentUnitNum == 50 && Collect_Data_state ==true){     //采集前60个数据不稳定，等稳定后再进行上传
+						gGlobalData.currentUnitNum = 0;
+						collectDataCount = 0;
+						Collect_Data_state = false;
+				}
 			}else{
 				reTime++;
 			}
@@ -354,7 +362,8 @@ int main(void)
   MX_ADC1_Init();
 	MX_ADC3_Init();
 //  MX_ETH_Init();
-  MX_I2C2_Init();
+  MX_I2C2_Init();         //屏蔽掉了原始i2c，新写了模拟i2c来控制，i2c有bug
+//  IIC_Init();           //2023/8/12 by yls 硬件i2c本身有缺陷不好用，用软件i2c模拟发送数据   8/16 update：还是用的硬件i2c 
   MX_SPI5_Init();
 	MX_USART3_UART_Init();
   MX_UART4_Init();
@@ -372,7 +381,7 @@ int main(void)
 	lcdTask_Semaphore_Init();
   /* USER CODE END 2 */
 	MX_I2C1_Init();
-	
+
   /* USER CODE END SysInit */
 	//new end
 	Init_All_Parameter();
@@ -419,7 +428,6 @@ int main(void)
 	DAC8831_Set_Data(0x7fff);       //初始化一下
 	//-----------------------音乐测试-----------------------//
 //		Send_ComMusic(3);
-
 //-----------------------rtos剩余容量的api初始剩余有44704---------------------------//	
 	
 	//wifi连接，连接MQTT 接收wifi传递过来的消息
@@ -521,9 +529,50 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   HAL_UART_Receive_IT(&huart4, (uint8_t *)Voice_aRxBuffer, Voice_RXBUFFERSIZE); //重新使能接收中断
   }
 	 else if(huart->Instance == USART2){
-			HAL_UART_Transmit(&huart4,"recive ok\r\n",sizeof("recive ok\r\n"),0xFFFF);
-		
-	 
+		 if(RecCom2[0] == 0x7E && RecCom2[5] == 0xEF){
+			 switch(RecCom2[2]){
+				 case 0xA3:
+					 if(RecCom2[3] == 0x00 && RecCom2[4] == 0xA7)
+						 printf("Play_specified_song:Success\r\n");       
+					 else
+						 printf("Play_specified_song_Error code:%d\r\n",RecCom2[3]);
+					 break;
+				case 0xAA:	 
+					if(RecCom2[3] == 0x00 && RecCom2[4] == 0xAE)
+						printf("Play_Pause:Success\r\n");
+					else
+						printf("Play_Pause_Error code:%d\r\n",RecCom2[3]);
+					break;
+				case 0xAB:	 
+					if(RecCom2[3] == 0x00 && RecCom2[4] == 0xAF)
+						printf("Stop_playing:Success\r\n");
+					else
+						printf("Stop_playing_Error code:%d\r\n",RecCom2[3]);
+					break;
+				case 0xAC:	 
+					if(RecCom2[3] == 0x00 && RecCom2[4] == 0xB0)
+						printf("Next_song:Success\r\n");
+					else
+						printf("Next_song_Error code:%d\r\n",RecCom2[3]);
+					break;
+				case 0xAD:	 
+					if(RecCom2[3] == 0x00 && RecCom2[4] == 0xB1)
+						printf("Previous_song:Success\r\n");
+					else
+						printf("Previous_song_Error code:%d\r\n",RecCom2[3]);
+					break;
+				case 0xAE:	 
+					if(RecCom2[3] == 0x00 && RecCom2[4] == 0xB2)
+						printf("Volume_adjustment:Success\r\n");
+					else
+						printf("Volume_adjustment_Error code:%d\r\n",RecCom2[3]);
+					break;
+				default :
+					 break; 
+			 }	 
+			}
+			memset(RecCom2,0,sizeof(RecCom2));
+			HAL_UART_Receive_IT(&huart2, RecCom2,COM2_REC_MAX); 
 	 }
 
 }
@@ -902,6 +951,10 @@ void MX_I2C2_Init(void)
   hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
   hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_DeInit(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_I2C_Init(&hi2c2) != HAL_OK)
   {
     Error_Handler();
@@ -1377,7 +1430,7 @@ static void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-
+	HAL_UART_Receive_IT(&huart2, RecCom2,COM2_REC_MAX);
   /* USER CODE END USART2_Init 2 */
 
 }
@@ -1578,7 +1631,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
-
+	HAL_GPIO_WritePin(GPIOI, IO13_Pin, GPIO_PIN_RESET);
+	
   /*Configure GPIO pin : RS485_EN2_Pin */
   GPIO_InitStruct.Pin = RS485_EN2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -1686,16 +1740,63 @@ void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void Set_Input_Output(uint8_t Flag)
 {
-   if(sON==Flag)
+	if(sON==Flag)
 	 {
-			set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);
-			set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);
+//		 taskENTER_CRITICAL(); 
+		 __disable_irq(); 
+		 set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON); 
+		 __enable_irq();         
+//   	taskEXIT_CRITICAL(); 
+        
+     if(gGlobalData.curWorkMode == WORK_MODE_ZL)
+			 osDelay(50);
+     __disable_irq();                  
+		 set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);           		 
+     __enable_irq();
  	 }
 	 else if(sOFF==Flag)
-   {
-			set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
+   {		 
+			__disable_irq();                 
+			set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);		 						           
+		  __enable_irq();
+			if(gGlobalData.curWorkMode == WORK_MODE_ZL)
+					osDelay(50);         
+			__disable_irq();
 			set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
+			__enable_irq();
 	 }
+}
+
+void Set_I2c_Register_Clear_Reset(void)
+{
+
+//    hi2c2.Instance->CR1             &= 0;
+//    hi2c2.Instance->CR2             &= 0;
+//    hi2c2.Instance->ICR             &= 0;
+//    hi2c2.Instance->ISR             |= 1<<0;
+//    hi2c2.Instance->OAR1            &= 0;
+//    hi2c2.Instance->OAR2            &= 0;
+//    hi2c2.Instance->PECR            &= 0;
+//    hi2c2.Instance->RXDR            &= 0;
+//    hi2c2.Instance->TIMEOUTR        &= 0;
+//    hi2c2.Instance->TIMINGR         &= 0;
+//    hi2c2.Instance->TXDR            &= 0;
+    
+    I2C2->CR1       &= 0;
+    I2C2->CR2       &= 0;
+    I2C2->ICR       &= 0;
+    I2C2->ISR       |= 1<<0;
+    I2C2->ISR       &= 1<<0;
+    I2C2->OAR1      &= 0;
+    I2C2->OAR2      &= 0;
+    I2C2->PECR      &= 0;
+    I2C2->RXDR      &= 0;
+    I2C2->TIMEOUTR  &= 0;
+    I2C2->TIMINGR   &= 0;
+    I2C2->TXDR      &= 0;
+    
+    MX_I2C2_Init();
+    return;
 }
 /* USER CODE END 4 */
 
@@ -1770,7 +1871,7 @@ void StartDefaultTask(void const * argument)
 						channelTime=0;
 						unitTime=0;
 						set_sampleMode(MODE_CLOSE);
-						HAL_PCA9554_outputAll(0);
+//						HAL_PCA9554_outputAll(0);
 						break;
 					case WORK_MODE_ZT:
 						gGlobalData.unitLen=gGlobalData.useWorkArg[0].rateN*gGlobalData.useWorkArg[0].upTime/1000;      
@@ -1790,40 +1891,17 @@ void StartDefaultTask(void const * argument)
 						set_sampleMode(MODE_ZT);  
 
 						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
-						//输出打开
-						set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);
-						//输入打开
-						set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);
+                        
+                        //输出打开 //输入打开 
+						Set_Input_Output(sON);   //采集
+ 
 						
 						//gGlobalData.curWorkState = WORK_PAUSE;
 						HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_SET); //运行红灯 set灭 reset亮
 						HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET); //运行绿灯 set灭 reset亮
 						send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中
-//						isCollect=false;
-
+            Collect_Data_state = true;
 						break;
-					case WORK_MODE_JB:
-						gGlobalData.unitLen=gGlobalData.useWorkArg[1].rateN*gGlobalData.useWorkArg[1].upTime/1000;
-						gGlobalData.freqUnitTime=1000/gGlobalData.useWorkArg[0].rateN;
-						if(gGlobalData.unitLen<1)
-						{
-								gGlobalData.unitLen=1;
-						}
-							if(gGlobalData.freqUnitTime<1)
-						{
-								gGlobalData.freqUnitTime=1;
-						}
-						
-						channelTime=0;
-						unitTime=0;
-						//采样模式
-						set_sampleMode(MODE_JB); //输出打开
-						set_channle_status(gGlobalData.useWorkArg[1].outs[gGlobalData.channelPos],DIR_OUT,sON);
-						//输入打开
-						set_channle_status(gGlobalData.useWorkArg[1].inputs[gGlobalData.channelPos],DIR_IN,sON);
-						gGlobalData.curWorkState = WORK_PAUSE;
-						break;
-
 					case WORK_MODE_ZL:
 						unitTime=0;						
 						//治疗模式
@@ -1840,9 +1918,11 @@ void StartDefaultTask(void const * argument)
 								 (gGlobalData.useWorkArg[0].timeTreat)/60);	 													                  //这一句是发送jly下发治疗方案给屏幕
 						osDelay(100);
 						Send_LcdVoltage(5.84*gGlobalData.useWorkArg[0].level);	
-						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗																																																				
-						set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);			//输出打开
-						set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);		//输入打开
+						osDelay(100);
+						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗	
+                    
+						Set_Input_Output(sON);   //治疗 输出打开  //输入打开
+
 						channelTime=0;	//开始计时
 						osDelay(200);
 						send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中
@@ -1863,10 +1943,10 @@ void StartDefaultTask(void const * argument)
 
 						if(gGlobalData.curWorkMode==WORK_MODE_ZT && gGlobalData.isConnect==1)     //有网才进行采集
 						{
-					
+                isCollect=true;                                
 								//判断采集时间是否到，且不是最后一个通道，切换下一通道,并更新通道位置、重置包位置计数、时间计数
 //								if(channelTime>=gGlobalData.useWorkArg[0].timeCheck*1000)
-								if(collectDataCount>=(gGlobalData.useWorkArg[0].timeCheck*gGlobalData.useWorkArg[0].rateN))
+								if(collectDataCount>(gGlobalData.useWorkArg[0].timeCheck*gGlobalData.useWorkArg[0].rateN))     //计数可以多计数一次才切换保证数据完整性
 								{
 							    gGlobalData.Alltime = gGlobalData.Alltime - gGlobalData.useWorkArg[0].timeCheck;//倒计时减1 2023.04.04 kardos
 									Countdown_Treat(gGlobalData.Alltime);//刷新倒计时
@@ -1878,8 +1958,9 @@ void StartDefaultTask(void const * argument)
 										yd_4gfalg=false ;
 										if(gGlobalData.netKind!=1)
 										osDelay(1000);          //wifi 4g延时1s后才采集结束，不然可能上传数据报错收不到治疗方案
+ 
 										gGlobalData.channelPos = 0;
-//									printf("整体采集结束\r\n"); 
+
 										HAL_PCA9554_outputAll(0);//先关闭所有继电器
 										yd_4gfalg=true ;
 										gGlobalData.curWorkMode =WORK_MODE_WT;
@@ -1890,75 +1971,24 @@ void StartDefaultTask(void const * argument)
 										taskEXIT_CRITICAL();
 									}else{
 										isCollect=false;
-										gGlobalData.currentUnitNum=0;
+//										gGlobalData.currentUnitNum=0;           //避免导致切换通道导致数据下发不全
 										collectDataCount=0;//设置为0
 										/*关闭上一次的采集通道*/
-										set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
-										set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);									
+                                        
+                    Set_Input_Output(sOFF);     //采集
+								
 										gGlobalData.channelPos++;
 										/*切换为下一通道*/
-										//输出打开
-										set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);
-										//输入打开
-										set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);
+										//输出打开  //输入打开
+                                        
+                    Set_Input_Output(sON);       //采集
+                                        
 										unitTime=0;
 										osDelay(10);//通道切换后做一个延时 让数据稳定后再采集
+										Collect_Data_state = true;
 										isCollect=true;
 									}
 								channelTime=0;//最后设置采集通道时间为0 否则程序处理会占用时间
-								}
-						}
-						else if(gGlobalData.curWorkMode==WORK_MODE_JB)
-						{
-								//装载数据
-								if(unitTime>=gGlobalData.freqUnitTime)
-								{
-									unitTime=0;
-									//gGlobalData.PlusePressData[gGlobalData.currentUnitNum]=(gADC1_VALUE_F[0]>>8)+(gADC1_VALUE_F[0]<<8);
-									gGlobalData.PlusePressData[gGlobalData.currentUnitNum]=(gADC3_VALUE_F[0]>>8)+(gADC3_VALUE_F[0]<<8);
-									gGlobalData.currentUnitNum++;
-								}else{
-									unitTime++;
-								}
-								//channelTime++;
-								 if(gGlobalData.currentUnitNum>=gGlobalData.unitLen)
-								 {
-									 gGlobalData.currentUnitNum=0;
-										if(gGlobalData.Send_Data_Task==false)
-										{
-											memcpy(&gGlobalData.PlusePressDataSend[10],gGlobalData.PlusePressData,gGlobalData.unitLen*2);
-	//										gGlobalData.Send_Data_Task=true;
-											SendPlusePressData();
-										}
-								 }
-								//判断采集时间是否到，且不是最后一个通道，切换下一通道,并更新通道位置、重置包位置计数、时间计数
-								if(channelTime>=gGlobalData.useWorkArg[1].timeCheck*1000)
-								{
-									channelTime=0;
-									if(gGlobalData.channelPos>=gGlobalData.useWorkArg[1].chanelNum)
-									{
-	//									gGlobalData.curWorkMode=WORK_MODE_WT;
-	//									gGlobalData.oldWorkMode=gGlobalData.curWorkMode;
-										//gGlobalData.curWorkState=WORK_STOP;
-										set_sampleMode(MODE_CLOSE);
-										HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);//切到治疗
-										yd_4gfalg=false ;   //4g心跳包
-						
-										gGlobalData.channelPos = 0;
-	//									printf("局部采集结束\r\n");   
-	//									gGlobalData.curWorkMode = WORK_MODE_ZL;
-										gGlobalData.oldWorkMode=gGlobalData.curWorkMode;
-										HAL_PCA9554_outputAll(0);
-										yd_4gfalg=true ;
-									Send_Fix_Ack(23,STATUS_OK,"JB Caiji ok");  //采集结束
-									}else{
-										gGlobalData.channelPos++;
-										/*切换为下一通道*/
-										//输出打开
-										set_channle_status(gGlobalData.useWorkArg[1].outs[gGlobalData.channelPos],DIR_OUT,sON);
-										//输入打开
-										set_channle_status(gGlobalData.useWorkArg[1].inputs[gGlobalData.channelPos],DIR_IN,sON);
-									}
 								}
 						}
 						else if(gGlobalData.curWorkMode==WORK_MODE_ZL)
@@ -2037,10 +2067,10 @@ void StartDefaultTask(void const * argument)
 										countTime=0;																																						//归零
 									}else{
 									//说明时间到了但是不是最后一个治疗方案，切下一个治疗方案
-		                set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
-										set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
+										Set_Input_Output(sOFF);    //治疗
+		             
 										gGlobalData.channelPos++;
-											osDelay(3000);
+										osDelay(1000);
 									//切换波形
 										gGlobalData.current_treatNums++;				
 										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
@@ -2057,13 +2087,10 @@ void StartDefaultTask(void const * argument)
 
 										osDelay(200);
 										/*切换为下一通道*/
-										//输出打开  
-										set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);
-										//输入打开
-										set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);
-										
-										//}
-										//2023.1.30 修改倒计时开始无显示频率时长问题。ZKM						
+										//输出打开   //输入打开
+                                        
+										Set_Input_Output(sON);      //治疗
+                                        
 										channelTime=0;										
 									}
 								}
@@ -2099,10 +2126,8 @@ void StartLoopTask(void const * argument)
 
 void Console_Task(void const * pvParameters)
 {
-//	int i;
 	uint8_t gbk0[8]={0,};
 	uint8_t gbkNum0[13]={0,};
-//	HAL_UART_Receive_DMA(&huart7, RecCom7,COM7_REC_MAX);
 		HAL_UART_Receive_DMA(&huart7, RecSen,30);
 	__HAL_UART_CLEAR_IDLEFLAG(&huart7);
 	__HAL_UART_ENABLE_IT(&huart7, UART_IT_IDLE);
@@ -2158,9 +2183,8 @@ void Console_Task(void const * pvParameters)
 										gGlobalData.curWorkState=WORK_START;
 											//2023.1.31 WWJZ
 										if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下暂停后再次开始
-												//HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);
-												set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON);
-												set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);
+                                       
+                                                set_sampleMode(MODE_ZL);
 												osDelay(200);
 												send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中	
 												send_LcdOutStatus(1);											 
@@ -2171,59 +2195,50 @@ void Console_Task(void const * pvParameters)
 										if(gGlobalData.curWorkMode==WORK_MODE_ZT){
 											osDelay(200);	
 											send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中			
+										
+											set_sampleMode(MODE_ZT);
+											osDelay(200);                                            
+											isCollect=true;
+											break;
 										}
-//								printf("1\r\n");   
-									}
-									if(gGlobalData.curWorkMode == WORK_MODE_ZT)
-									{
-										set_sampleMode(MODE_ZT);	
-										isCollect=true;
-										break;
-									}
-									set_sampleMode(MODE_ZL);
-									cnt_heartbag = 0;												//发送心跳清空心跳计数器
-                  gGlobalData.heartbag_flage = 1;
 
+                                        
+											cnt_heartbag = 0;												//发送心跳清空心跳计数器
+											gGlobalData.heartbag_flage = 1;
+									 }
 									break;
 							case 0x02:  //暂停按钮
-
-								gGlobalData.cur_heart_state=PAUSE;
-							  gGlobalData.curWorkState=WORK_PAUSE;
-								set_sampleMode(MODE_CLOSE);
-								 //2023.1.31 WWJZ
-								 if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下暂停
-									set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
-									set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
-								 }//2023.1.31 WWJZ
-								 osDelay(20);
-								 send_LcdSync(0); 
-							 	 osDelay(200);
-								 send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
-								 send_LcdOutStatus(0);
-							 	 if(gGlobalData.curWorkMode == WORK_MODE_ZT)
-								 {
-									 isCollect=false;//2023.03.31 ZKM
-								 }
-								 cnt_heartbag = 0;												//发送心跳清空心跳计数器
-                 gGlobalData.heartbag_flage = 1;
-							 
+									if(gGlobalData.curWorkState == WORK_START){
+											gGlobalData.cur_heart_state=PAUSE;
+											gGlobalData.curWorkState=WORK_PAUSE;
+											set_sampleMode(MODE_CLOSE);
+								 
+											 osDelay(20);
+											 send_LcdSync(0); 
+											 osDelay(200);
+											 send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
+											 send_LcdOutStatus(0);
+											 if(gGlobalData.curWorkMode == WORK_MODE_ZT)
+											 {
+													 isCollect=false;//2023.03.31 ZKM
+													 Collect_Data_state =true;
+											 }
+													 
+											 cnt_heartbag = 0;												//发送心跳清空心跳计数器
+											gGlobalData.heartbag_flage = 1;
+									}
 								break;
 							case 0x03://复位按钮
-								
+//									Set_Input_Output(sOFF);                       //多了一句复位先寻址关闭上一次的两通道
 									Send_Fix_Ack(100,STATUS_OK,"OK");//发送给上位机告诉执行了复位
 									gGlobalData.cur_heart_state=LEISURE;
 									gGlobalData.curWorkState=WORK_STOP; 
                                     collectDataCount=0;
                                     gGlobalData.useWorkArg[gGlobalData.current_treatNums].level=0;  //复位后挡位调节为0
 									gGlobalData.current_treatNums=0;//2023.02.01
-									//2023.1.31 WWJZ
-									if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下复位
-
-										 set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);
-										 set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
-									}//2023.1.31 WWJZ
+                                   
 									set_sampleMode(MODE_CLOSE);
-									 
+ 
 									HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
 									gGlobalData.channelPos=0;
 									HAL_PCA9554_outputAll(0);
@@ -2315,7 +2330,6 @@ void Console_Task(void const * pvParameters)
 
 		memset (RecSen,0,sizeof(RecSen));
 		HAL_UART_Receive_DMA(&huart7, RecSen,30); //2023.02.03
-//		HAL_UART_Receive_DMA(&huart7, RecCom7, COM7_REC_MAX);
 
 	}//for循环
 }

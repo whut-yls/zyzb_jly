@@ -46,27 +46,6 @@ bool startDefatltTask_Semaphore_Init(void)
 }
 
 
-//void StartDefaultTask(void const * argument)
-//{
-//	uint8_t i;
-//
-//	while(1)
-//	{
-//
-//		xSemaphoreTake(defaultSemaphore,portMAX_DELAY);
-//
-//		Console_Handle(RecCom1,RecCom1Num,1);
-//
-//		for(i=0;i<10;i++)	{RecCom1[i]=0;}	//clean data
-//
-//		READ_REG(huart1.Instance->DR);
-//
-//		SET_BIT(huart1.Instance->CR1, USART_CR1_RE);
-//		HAL_UART_Receive_DMA(&huart1, RecCom1, COM1_REC_MAX); //若信号丢失 则会导致DMA未开启，不能放在这里
-////		__HAL_UART_CLEAR_IDLEFLAG(&huart7);
-////		__HAL_UART_ENABLE_IT(&huart7, UART_IT_IDLE);	//不能关闭空闲中断，否则再发生ore事件后无法恢复。
-//	}//while
-//  /* USER CODE END 5 */
-//}
+
 
 

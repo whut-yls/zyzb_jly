@@ -79,6 +79,7 @@ void WifiMqttClientTask(void const * argument)        //void StartDefaultTask(vo
 					osDelay (200);	
 					atk_8266_send_cmd(bufCon,0xFFFF);
 					HAL_UART_Receive_DMA(&huart3, RecCom3,COM3_REC_MAX);
+					cnt_heartbag = 0;	
 				}
 				if(strstr((const char*)RecCom3,MQTT_CONNECT)){
 					printf("wifi-working\r\n");

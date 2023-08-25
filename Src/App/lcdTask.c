@@ -242,7 +242,7 @@ void send_visitSex(uint16_t sex)
 //修改屏幕二维码信息
 void send_QRInfo(uint8_t* data,uint8_t dataLen)
 {
-	uint8_t buf[80]={0x00},i;
+	uint8_t buf[200]={0x00},i;
 	uint16_t utmp16=0,len;
 	if(dataLen>NAME_QR_LEN_MAX)
 		return;
@@ -504,9 +504,9 @@ Para: data：数据  dataLen：数据长度
 */
 void Send_Text_Content(uint8_t* data,uint8_t dataLen)  
 {
-	uint8_t buf[35]={0x00},i;
+	uint8_t buf[200]={0x00},i;
 	uint16_t utmp16=0,len;
-	if(dataLen>46)
+	if(dataLen > 200)   //46
 		return;
 	len=6+dataLen+2;
 	memset(buf,0,sizeof(buf));
@@ -525,7 +525,7 @@ void Send_Text_Content(uint8_t* data,uint8_t dataLen)
 	}
 	buf[6+i]=0;
 	buf[6+i+1]=0;
-	HAL_UART_Transmit_Lcd(buf,len,0xFFFF);	
+	HAL_UART_Transmit_Lcd(buf,len,0xFFFF);
 }
 
 //发送确认按键可用

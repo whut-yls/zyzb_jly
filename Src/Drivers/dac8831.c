@@ -11,7 +11,7 @@ uint8_t g_spiTxBuf[SPI_BUFFER_SIZE];
 uint32_t g_spiLen;
 void DAC8831_Set_Data(uint16_t data)
 {
-	DAC8831_SetCS(0);
+//	DAC8831_SetCS(0);
 	g_spiLen = 0;
 	g_spiTxBuf[g_spiLen++] = (data >> 8);
 	g_spiTxBuf[g_spiLen++] = (data);
@@ -24,7 +24,7 @@ void DAC8831_Set_Data(uint16_t data)
 	{
 		Error_Handler();
 	}
-	DAC8831_SetCS(1);	
+//	DAC8831_SetCS(1);	
 }
 
 void DAC8831_Set_Data_Dma(uint16_t *_pbufch1, uint32_t _sizech1,uint32_t _ulFreq)

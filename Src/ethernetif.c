@@ -792,8 +792,9 @@ void ethernet_link_thread(void const * argument)
 		if(count_down==50){
 			count_down=0;
 			Countdown_Treat(gGlobalData.Alltime); 												 // 1s发两次倒计时	
+           
 		}			
-		
+
 		
 		
 		

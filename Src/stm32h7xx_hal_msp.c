@@ -399,15 +399,15 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
   /* USER CODE END I2C2_MspDeInit 0 */
     /* Peripheral clock disable */
-//    __HAL_RCC_I2C2_CLK_DISABLE();
+    __HAL_RCC_I2C2_CLK_DISABLE();
 
-//    /**I2C2 GPIO Configuration
-//    PF0     ------> I2C2_SDA
-//    PF1     ------> I2C2_SCL
-//    */
-//    HAL_GPIO_DeInit(GPIOF, GPIO_PIN_0);
+    /**I2C2 GPIO Configuration
+    PF0     ------> I2C2_SDA
+    PF1     ------> I2C2_SCL
+    */
+    HAL_GPIO_DeInit(GPIOF, GPIO_PIN_0);
 
-//    HAL_GPIO_DeInit(GPIOF, GPIO_PIN_1);
+    HAL_GPIO_DeInit(GPIOF, GPIO_PIN_1);
 
   /* USER CODE BEGIN I2C2_MspDeInit 1 */
 
