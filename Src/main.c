@@ -943,7 +943,7 @@ void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x307075B1;
+  hi2c2.Init.Timing = 0xF010F2FF;     // 0x307075B1  100khz        25khz£º0xC0206FFF(Cube)  0xF07075B1(×Ô¼º¸Ä)    15KHZ:0xF010F2FF
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
