@@ -618,7 +618,7 @@ void do_work_ctl(uint8_t workMode)
 							Collect_Data_state =true;
 					} 
 			} 
-         
+      gGlobalData.Auto_Level_Ctl = 0;   
 			break;
 		case 3:
 //			Set_Input_Output(sOFF);
@@ -667,6 +667,7 @@ void do_work_ctl(uint8_t workMode)
 			send_lcdQRcode();
 			send_LcdOutStatus(0);
 			isCollect=false;//2023.03.31 ZKM
+			gGlobalData.Auto_Level_Ctl = 0;
 			HAL_TIM_Base_DeInit(&htim12);  //不产生波形
 			break;
 		case 4:

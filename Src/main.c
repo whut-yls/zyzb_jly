@@ -1814,7 +1814,7 @@ void StartDefaultTask(void const * argument)
   uint8_t gbk0[8]={0,};
 	uint8_t gbkNum0[13]={0,};
 	
-	int16_t collectTime=0,unitTime=0;
+	int16_t collectTime=0,unitTime=0,CountDown_Time = 0;
 	/*adc 校准**/
 	if(HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED)!=HAL_OK)	//阻塞方式
 	{
@@ -1903,6 +1903,7 @@ void StartDefaultTask(void const * argument)
             Collect_Data_state = true;
 						break;
 					case WORK_MODE_ZL:
+						CountDown_Time = gGlobalData.Alltime;
 						unitTime=0;						
 						//治疗模式
 						set_sampleMode(MODE_ZL);
@@ -1994,7 +1995,17 @@ void StartDefaultTask(void const * argument)
 						else if(gGlobalData.curWorkMode==WORK_MODE_ZL)
 						{		//2023.02.01			 		
 								//channelTime++;
-							
+							if(CountDown_Time != gGlobalData.Alltime){             //治疗模式下倒计时减一秒到屏幕显示  1s进一下
+								CountDown_Time = gGlobalData.Alltime;
+								Countdown_Treat(gGlobalData.Alltime);
+								osDelay(10);
+								if(gGlobalData.Auto_Level_Ctl != 0 && gGlobalData.Auto_Level_Ctl != gGlobalData.useWorkArg[gGlobalData.current_treatNums].level && gGlobalData.Alltime >= 120){     //自动加减档位控制,下发接收的时候有5-60的范围控制
+									gGlobalData.Auto_Level_Ctl > gGlobalData.useWorkArg[gGlobalData.current_treatNums].level ? do_work_ctl(4) : do_work_ctl(5);
+								}
+								else if(gGlobalData.Auto_Level_Ctl == gGlobalData.useWorkArg[gGlobalData.current_treatNums].level){                                                                   //加减控制完后清0重置
+									gGlobalData.Auto_Level_Ctl = 0;
+								}
+							}	
 							//最后一个治疗方案，当档位大于10且剩余最后2分钟，每4秒下降一个档位，体感逐步减弱 2023.02.06 kardos
 							if(gGlobalData.channelPos>=gGlobalData.useWorkArg[0].chanelNum-1)//说明是最后一个
 							{
@@ -2065,6 +2076,7 @@ void StartDefaultTask(void const * argument)
 										osDelay(100);
 										send_LcdWorkStatus(1);																																	//kardos 2023.02.03 修改设备工作状态为：设备待机状态
 										countTime=0;																																						//归零
+										gGlobalData.Auto_Level_Ctl = 0;
 									}else{
 									//说明时间到了但是不是最后一个治疗方案，切下一个治疗方案
 										Set_Input_Output(sOFF);    //治疗
@@ -2213,19 +2225,19 @@ void Console_Task(void const * pvParameters)
 											gGlobalData.curWorkState=WORK_PAUSE;
 											set_sampleMode(MODE_CLOSE);
 								 
-											 osDelay(20);
-											 send_LcdSync(0); 
-											 osDelay(200);
-											 send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
-											 send_LcdOutStatus(0);
-											 if(gGlobalData.curWorkMode == WORK_MODE_ZT)
-											 {
-													 isCollect=false;//2023.03.31 ZKM
-													 Collect_Data_state =true;
-											 }
-													 
-											 cnt_heartbag = 0;												//发送心跳清空心跳计数器
-											gGlobalData.heartbag_flage = 1;
+										  osDelay(20);
+										  send_LcdSync(0); 
+										  osDelay(200);
+										  send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
+										  send_LcdOutStatus(0);
+										  if(gGlobalData.curWorkMode == WORK_MODE_ZT)
+										  {
+												 isCollect=false;//2023.03.31 ZKM
+												 Collect_Data_state =true;
+										  }	 
+										  cnt_heartbag = 0;												//发送心跳清空心跳计数器
+										  gGlobalData.Auto_Level_Ctl = 0;
+										  gGlobalData.heartbag_flage = 1;
 									}
 								break;
 							case 0x03://复位按钮
@@ -2272,6 +2284,7 @@ void Console_Task(void const * pvParameters)
 									send_lcdQRcode();
 									send_LcdOutStatus(0);
 									isCollect=false;//2023.03.31 ZKM
+									gGlobalData.Auto_Level_Ctl = 0;
 									HAL_TIM_Base_DeInit(&htim12);  //不产生波形
 									break;
 							case 0x05://档位加
