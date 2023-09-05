@@ -1,0 +1,11 @@
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTSubscribeServer.c
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTPacket.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTConnect.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTPublish.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTSubscribe.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTUnsubscribe.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTFormat.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\StackTrace.h
+motordriver\mqttsubscribeserver.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\mqttsubscribeserver.o: ..\Src\mqtt\MQTTPacket.h
+motordriver\mqttsubscribeserver.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

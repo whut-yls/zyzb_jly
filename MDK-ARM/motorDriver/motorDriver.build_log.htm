@@ -1,0 +1,130 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.30.0.0
+Copyright (C) 2020 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: 1 2590201681@qq.com, 1, LIC=D0D7S-LNRMF-2ZDW4-F3W2L-V0YQ6-8RNQV
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.30.0.0
+Toolchain Path:  d:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.30.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.7.0
+Dialog DLL:      TCM.DLL V1.42.0.0
+ 
+<h2>Project:</h2>
+F:\Working\中医\中医装备代码8-20出差回\2023-08-20-JLY\MDK-ARM\motorDriver.uvprojx
+Project File Date:  08/20/2023
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'd:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'motorDriver'
+compiling user_tcp_client.c...
+..\Lwip_App\user_tcp_client.c(416): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+  			send_QRInfo(gDeviceParam.qrbuf,strlen(gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+..\Lwip_App\user_tcp_client.c(457): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+  						send_QRInfo(gDeviceParam.qrbuf,strlen(gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+..\Lwip_App\user_tcp_client.c(366): warning:  #177-D: variable "payloadLen"  was declared but never referenced
+  	unsigned short payloadLen=0;
+..\Lwip_App\user_tcp_client.c(368): warning:  #177-D: variable "addr"  was declared but never referenced
+  	unsigned char addr[4]={0,};
+..\Lwip_App\user_tcp_client.c(369): warning:  #177-D: variable "ret"  was declared but never referenced
+  	int ret;	//char ret 无法表示-1=0xff
+..\Lwip_App\user_tcp_client.c(370): warning:  #177-D: variable "len"  was declared but never referenced
+  	int len;
+..\Lwip_App\user_tcp_client.c(573): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+  		strcpy(gGlobalData.ack_time ,item->valuestring);
+..\Lwip_App\user_tcp_client.c(574): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *"
+  		GBK_Timeprocess(gGlobalData.ack_time );		
+..\Lwip_App\user_tcp_client.c(1321): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  		send_visitNumber(gUserInfo.number);          //发送指令至屏幕显示编号
+..\Lwip_App\user_tcp_client.c(1452): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			SendMessageDialog(strBuf,strlen(strBuf));                    //处理提示框
+..\Lwip_App\user_tcp_client.c(1465): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			Send_PlayMusic(strBuf);
+..\Lwip_App\user_tcp_client.c(1502): warning:  #188-D: enumerated type mixed with another type
+  					WriteOUT13(0);
+..\Lwip_App\user_tcp_client.c(1505): warning:  #188-D: enumerated type mixed with another type
+  					WriteOUT13(1);    // 亮灯
+..\Lwip_App\user_tcp_client.c(508): warning:  #177-D: variable "tCollectFreq"  was declared but never referenced
+  	int tCollectFreq,tCollectUptime;
+..\Lwip_App\user_tcp_client.c(508): warning:  #177-D: variable "tCollectUptime"  was declared but never referenced
+  	int tCollectFreq,tCollectUptime;
+..\Lwip_App\user_tcp_client.c(510): warning:  #177-D: variable "directionFlag"  was declared but never referenced
+  	int  functionFlag,directionFlag,valueFlag,unityFlag,motorFlag,motorMode;
+..\Lwip_App\user_tcp_client.c(510): warning:  #177-D: variable "unityFlag"  was declared but never referenced
+  	int  functionFlag,directionFlag,valueFlag,unityFlag,motorFlag,motorMode;
+..\Lwip_App\user_tcp_client.c(510): warning:  #177-D: variable "motorFlag"  was declared but never referenced
+  	int  functionFlag,directionFlag,valueFlag,unityFlag,motorFlag,motorMode;
+..\Lwip_App\user_tcp_client.c(510): warning:  #177-D: variable "motorMode"  was declared but never referenced
+  	int  functionFlag,directionFlag,valueFlag,unityFlag,motorFlag,motorMode;
+..\Lwip_App\user_tcp_client.c(1624): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
+..\Lwip_App\user_tcp_client.c(1627): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart3,(char*)messageSend.payload,messageSend.payloadlen);	
+..\Lwip_App\user_tcp_client.c(1646): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
+..\Lwip_App\user_tcp_client.c(1649): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart3,(char*)messageSend.payload,messageSend.payloadlen);     //不行还是用这句
+..\Lwip_App\user_tcp_client.c(1657): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart6,(char*)buf4g_ack_head,strlen(buf4g_ack_head));
+..\Lwip_App\user_tcp_client.c(1659): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart6,(char*)messageSend.payload,messageSend.payloadlen);
+..\Lwip_App\user_tcp_client.c(1684): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
+..\Lwip_App\user_tcp_client.c(1686): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart3,(char*)gAck,strlen(gAck));
+..\Lwip_App\user_tcp_client.c(1695): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart6,(char*)buf4g_ack_head,strlen(buf4g_ack_head));
+..\Lwip_App\user_tcp_client.c(1697): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  				HAL_UART_Transmit_DMA(&huart6,(char*)gAck,strlen(gAck));
+..\Lwip_App\user_tcp_client.c(1823): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *restrict"
+  	strcpy(Recbuf,Msg);
+..\Lwip_App\user_tcp_client.c(1837): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  	Send_Text_Content(Msgbuf,strlen(Msgbuf));
+..\Lwip_App\user_tcp_client.c(1881): warning:  #177-D: variable "bufwifi_ack_head"  was declared but never referenced
+  	char bufwifi_ack_head[128]={0,};				//配置为接收模式
+..\Lwip_App\user_tcp_client.c(1882): warning:  #550-D: variable "messageSend"  was set but never used
+  	MQTTMessage messageSend;
+..\Lwip_App\user_tcp_client.c(24): warning:  #177-D: variable "gRecvCheckData"  was declared but never referenced
+  static unsigned char gRecvCheckData[100];
+..\Lwip_App\user_tcp_client.c: 34 warnings, 0 errors
+linking...
+Program Size: Code=158296 RO-data=2156 RW-data=1140 ZI-data=314588  
+FromELF: creating hex file...
+After Build - User command #1: fromelf --bin -o ".\bin_file\motorDriver.bin" "motorDriver\motorDriver.axf"
+"motorDriver\motorDriver.axf" - 0 Error(s), 34 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.7.0.pack
+                ARM.CMSIS.5.7.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.4.0
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32H7xx_DFP.3.1.0.pack
+                Keil.STM32H7xx_DFP.3.1.0
+                STMicroelectronics STM32H7 Series Device Support and Examples
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_motorDriver
+  C:\Users\25902\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include
+  C:\Users\25902\AppData\Local\Arm\Packs\Keil\STM32H7xx_DFP\3.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.4.0
+Build Time Elapsed:  00:00:20
+</pre>
+</body>
+</html>
