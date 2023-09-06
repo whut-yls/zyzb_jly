@@ -589,8 +589,8 @@ int netData_process(char *payload,int payloadLen)
 //		}
 //		tCollectFreq=item->valueint;
 //		gGlobalData.useWorkArg[0].upTime=item->valueint;
-//	
-		gGlobalData.cur_heart_state	=WAITING;	 
+		if(gGlobalData.curWorkState != WORK_START)              //没点击启动的时候采集方案接收到才会上传等待状态，已经点了启动的时候就不会把上传服务器的状态给到等待
+			gGlobalData.cur_heart_state	= WAITING;	 
     printf("Recv Collect Preject!\r\n");
 		item=cJSON_GetObjectItem(root, KEY_DATA_UPTIME);
 		if (item == NULL || !cJSON_IsNumber(item)) {
@@ -1006,6 +1006,7 @@ int netData_process(char *payload,int payloadLen)
 		set_sampleMode(MODE_ZL);//再切一次设置治疗模式
 		gGlobalData.curWorkMode = WORK_MODE_ZL;//2023.1.30增加
 		gGlobalData.curWorkState=WORK_START;//将运行状态开始  kardos 2023.02.03
+		gGlobalData.cur_heart_state=WORKING;
 		Countdown_Treat(gGlobalData.Alltime);
 //		gGlobalData.Send_Client_Over= true;	   //采集结束后下发的治疗方案  debug  应答
 		printf("Recv ZL Preject!\r\n");
