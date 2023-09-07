@@ -1556,7 +1556,7 @@ int netData_process(char *payload,int payloadLen)
 			}
 			else{
 				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-control-repeatedly-or-value err");
-				return -1;
+				break;
 			}
 			Send_Fix_Ack(functionFlag,STATUS_OK,"ok");			
 		break;
