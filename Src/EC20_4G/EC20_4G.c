@@ -201,7 +201,7 @@ void EC200MqttClientTask(void const * argument)	//EC20配置初始化，连接MQTT服务器
 									gGlobalData.ResetStatus=false;
 									do_work_ctl(3);
 									osDelay (100); 
-									send_QRInfo(gDeviceParam.qrbuf,strlen(gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+									send_QRInfo(gDeviceParam.qrbuf,strlen((const char*)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
 								}		
 								send_NetSync(5);    //网络灯 1601  
 								osDelay (100);	

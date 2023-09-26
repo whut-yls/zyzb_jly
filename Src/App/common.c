@@ -580,26 +580,23 @@ void do_work_ctl(uint8_t workMode)
 					
 			if(gGlobalData.curWorkState != WORK_START){			
 				 gGlobalData.cur_heart_state=WORKING;
-                 gGlobalData.curWorkState=WORK_START;
+         gGlobalData.curWorkState=WORK_START;
 					//2023.1.31 WWJZ
 				 if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下暂停后再次开始
-
 						osDelay(200);
 						send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中	
 						send_LcdOutStatus(1);	
-                        set_sampleMode(MODE_ZL);
+            set_sampleMode(MODE_ZL);
 				 }//2023.1.31 WWJZ
 				 osDelay(200);
-				 send_LcdSync(1);  //修改屏幕运行状态
-				
+				 send_LcdSync(1);  //修改屏幕运行状态			
 				if(gGlobalData.curWorkMode==WORK_MODE_ZT){
 					osDelay(200);	
-					send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中			
-                    
-                    set_sampleMode(MODE_ZT);	
-                    isCollect=true;
-                    break;
-                } 
+					send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中			              
+          set_sampleMode(MODE_ZT);	
+          isCollect=true;
+          break;
+        } 
 			}	
 			break;
 		case 2:			
@@ -626,18 +623,14 @@ void do_work_ctl(uint8_t workMode)
 			gGlobalData.cur_heart_state = LEISURE; 
 			gGlobalData.curWorkState=WORK_STOP; 
 			collectDataCount=0;
-			gGlobalData.useWorkArg[gGlobalData.current_treatNums].level=0;
+			Level = 0;
+			gGlobalData.useWorkArg[gGlobalData.current_treatNums].level=Level;
 			gGlobalData.current_treatNums=0;//2023.02.01
-
-			set_sampleMode(MODE_CLOSE);
-				
+			set_sampleMode(MODE_CLOSE);				
 			HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
-			
-
-			HAL_PCA9554_outputAll(0);
-        
+			HAL_PCA9554_outputAll(0);      
 			gGlobalData.channelPos=0;
-            HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET); //运行红灯 set灭 reset亮
+      HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET); //运行红灯 set灭 reset亮
 			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET); //运行绿灯 set灭 reset亮
 			gGlobalData.curWorkMode=WORK_MODE_WT;
 			gGlobalData.oldWorkMode=gGlobalData.curWorkMode;
@@ -671,34 +664,46 @@ void do_work_ctl(uint8_t workMode)
 			HAL_TIM_Base_DeInit(&htim12);  //不产生波形
 			break;
 		case 4:
-
-			if(gGlobalData.useWorkArg[gGlobalData.current_treatNums].level <=60){
-				gGlobalData.useWorkArg[gGlobalData.current_treatNums].level+=1;
+			if(Level <=60){
+				for(int level_CD = 0 ; level_CD < 10 ; level_CD++){
+					if(Level*1000 - (int)Level*1000 <= 1)
+						Level = ((Level + 0.1f)*1000+0.1f)/1000 ;
+					else
+						Level += 0.1;		
+					Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
+					Dac8831_Set_Amp(Level, ch1buf);//幅值改变
+					Dac_level_CTL(1);   //档位改变后波形产生
+					osDelay(1);
+				}
 				send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
-											gGlobalData.useWorkArg[gGlobalData.current_treatNums].level,
+											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
-				if(gGlobalData.useWorkArg[gGlobalData.current_treatNums].level <= 60)
-					Send_LcdVoltage(5.84*gGlobalData.useWorkArg[gGlobalData.current_treatNums].level);	
-				Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
-				Dac8831_Set_Amp(gGlobalData.useWorkArg[gGlobalData.current_treatNums].level, ch1buf);//幅值改变
+				Send_LcdVoltage(5.84*Level);	
+
 			} 
-			Dac_level_CTL(1);   //档位改变后波形产生
+			
 			break;
 		case 5:
-
-			if(gGlobalData.useWorkArg[gGlobalData.current_treatNums].level >=5){
-				gGlobalData.useWorkArg[gGlobalData.current_treatNums].level-=1; 
+			if(Level >=5){
+				for(int level_ACD = 0 ; level_ACD < 10 ; level_ACD++){
+					if(Level*1000 - (int)Level*1000 <= 1)
+						Level = ((Level - 0.1f)*1000+0.1f)/1000 ;
+					else
+						Level -= 0.1;
+					Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
+					Dac8831_Set_Amp(Level, ch1buf);//幅值改变
+					Dac_level_CTL(1);   //档位改变后波形产生
+					osDelay(1);					
+				}
 				send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
-											gGlobalData.useWorkArg[gGlobalData.current_treatNums].level,
+											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
-				if(gGlobalData.useWorkArg[gGlobalData.current_treatNums].level <= 60)
-					Send_LcdVoltage(5.84*gGlobalData.useWorkArg[gGlobalData.current_treatNums].level);
-				Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
-				Dac8831_Set_Amp(gGlobalData.useWorkArg[gGlobalData.current_treatNums].level, ch1buf);//幅值改变
+				Send_LcdVoltage(5.84*Level);
+
 			}  
-			Dac_level_CTL(1);   //档位改变后波形产生
+			
 			break;
 		default: 
 			break;
@@ -755,11 +760,11 @@ void general_heartBag(int fun, int status, int netKind, int workState, int timeL
 	cJSON_AddNumberToObject(item_work ,KEY__WORK_CURRENT,gGlobalData.currentNet);
 	
 	item_env = cJSON_AddObjectToObject(root,KEY_ENV);
-	cJSON_AddNumberToObject(item_env ,KEY_TEMP,(int) (gSensorData1.RHt*100+0.5)/100.0);    //保留两位小数点
+	cJSON_AddNumberToObject(item_env ,KEY_TEMP,(int) (gSensorData1.RHt*100+0.5f)/100.0);    //保留两位小数点
 	cJSON_AddNumberToObject(item_env,KEY_HUMID,gSensorData1.RH);
 
 	item_para = cJSON_AddObjectToObject(root,KEY_PARA);
-	cJSON_AddNumberToObject(item_para ,KEY_LEVEL, gGlobalData.useWorkArg[gGlobalData.current_treatNums].level);
+	cJSON_AddNumberToObject(item_para ,KEY_LEVEL, (char)Level);
 
 	//cJSON_AddStringToObject(root,KEY_UPD_FLAGE,"SWD");
 	

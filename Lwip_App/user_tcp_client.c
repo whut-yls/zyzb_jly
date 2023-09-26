@@ -1003,6 +1003,7 @@ int netData_process(char *payload,int payloadLen)
 		}
 		Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
 		
+		Level= gGlobalData.useWorkArg[0].level;//初始默认档位赋值 
 		set_sampleMode(MODE_ZL);//再切一次设置治疗模式
 		gGlobalData.curWorkMode = WORK_MODE_ZL;//2023.1.30增加
 		gGlobalData.curWorkState=WORK_START;//将运行状态开始  kardos 2023.02.03
@@ -1561,6 +1562,7 @@ int netData_process(char *payload,int payloadLen)
 			Send_Fix_Ack(functionFlag,STATUS_OK,"ok");			
 		break;
 			
+			
 		default:
 		break;
 	} 
@@ -1624,16 +1626,16 @@ void StartMqttSendTask(void const *arg)
 				osDelay(100);
 				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
 				osDelay(50);
-				taskENTER_CRITICAL();                                    //锁住
+				__disable_irq();                                    //锁住
 				HAL_UART_Transmit_DMA(&huart3,(char*)messageSend.payload,messageSend.payloadlen);	
-				taskEXIT_CRITICAL();
+				__enable_irq();
 //				HAL_UART_Transmit_DMA(&huart3,(char*)gAck,strlen(gAck));	
 				osDelay(10);
 
 			}
 		}
 	        
-		//读数据回复
+		//读数据回复  发送采集数据的
 		if(gGlobalData.Send_Data_Task==true)
 		{
  			messageSend.payload =gGlobalData.PlusePressDataSend;                                 //gGlobalData.PlusePressDataSend;
@@ -1684,7 +1686,9 @@ void StartMqttSendTask(void const *arg)
 				osDelay(50);
 				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
 				osDelay(50);
+				__disable_irq(); 
 				HAL_UART_Transmit_DMA(&huart3,(char*)gAck,strlen(gAck));
+				__enable_irq();
 				osDelay(10);
 
 			}

@@ -76,6 +76,8 @@ extern bool gEthStatus;
 extern bool gMqttLinkStatus;      //网络状态
 /* USER CODE END EFP */
 extern uint16_t  ch1buf[100];
+
+extern float Level;//档位强度控制变量
 /* Private defines -----------------------------------------------------------*/
 #define RMII_INT_Pin GPIO_PIN_2
 #define RMII_INT_GPIO_Port GPIOH

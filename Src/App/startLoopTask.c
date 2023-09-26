@@ -150,6 +150,7 @@ while(1)
 				}
 		
 		}
+		#endif
 		#if 0
 		/****气压传感器**/
 		if(SensorCnt2==0||SensorCnt2>=10) //3s
@@ -183,7 +184,7 @@ while(1)
 			DataCollectExecute();
 		}
 		#endif
-#endif
+
 		/*电量采集*/
 		/*****/
 		
