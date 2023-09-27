@@ -21,7 +21,7 @@ struct netconn*  gNetSock[NET_SOCK_NUM];
 unsigned char gNetSockStatus[NET_SOCK_NUM];
 //static char gRecvNetData[RECV_BUF_MAX-1];
 //char gSendNetData[RECV_BUF_MAX-1];
-static unsigned char gRecvCheckData[100];
+//static unsigned char gRecvCheckData[100];
 
 
 int netData_process(char *payload,int payloadLen);
@@ -363,7 +363,6 @@ void transport_deconnect(int netId)
 void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 {
 	int rc;
-	unsigned short payloadLen=0;
 
 	unsigned char addr[4]={0,};
 	int ret;	//char ret 无法表示-1=0xff
@@ -413,7 +412,7 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 		{
 			gGlobalData.ResetStatus=false;
 			do_work_ctl(3);
-			send_QRInfo(gDeviceParam.qrbuf,strlen(gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+			send_QRInfo(gDeviceParam.qrbuf,strlen((const char *)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
 		}
 		cnt_heartbag = 0;											  	//发送心跳清空心跳计数器		
 		gGlobalData.heartbag_flage=1;			         //连接上服务器立马发送心跳并接收解析
@@ -454,7 +453,7 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 					{
 						gGlobalData.ResetStatus=false;
 						do_work_ctl(3);
-						send_QRInfo(gDeviceParam.qrbuf,strlen(gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+						send_QRInfo(gDeviceParam.qrbuf,strlen((const char *)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
 					}
 					send_NetSync(1);  																																		  //网络灯 1601  //**//
 					osDelay (100);
@@ -570,8 +569,8 @@ int netData_process(char *payload,int payloadLen)
 			return -1;
 			}
 //		memset(strBuf,0,sizeof(strBuf));
-		strcpy(gGlobalData.ack_time ,item->valuestring);
-		GBK_Timeprocess(gGlobalData.ack_time );		
+		strcpy((char *)gGlobalData.ack_time ,item->valuestring);
+		GBK_Timeprocess((char *)gGlobalData.ack_time );		
 
 	#endif
 	
@@ -1320,7 +1319,7 @@ int netData_process(char *payload,int payloadLen)
 		osDelay(50);
 		GBK_Msgprocess(gUserInfo.name);    //发送指令至屏幕显示下发数据的名字
 		osDelay(50);
-		send_visitNumber(gUserInfo.number);          //发送指令至屏幕显示编号
+		send_visitNumber((uint8_t *)gUserInfo.number);          //发送指令至屏幕显示编号
 		osDelay(50);
 		send_visitSex(reet);       //发送指令至屏幕显示下发数据的性别
 		osDelay(50);
@@ -1451,7 +1450,7 @@ int netData_process(char *payload,int payloadLen)
 			}
 			memset(strBuf,0,sizeof(strBuf));
 			strcpy(strBuf,item->valuestring);
-			SendMessageDialog(strBuf,strlen(strBuf));                    //处理提示框
+			SendMessageDialog((uint8_t *)strBuf,strlen(strBuf));                    //处理提示框
 			Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
 		break;   
       
@@ -1464,7 +1463,7 @@ int netData_process(char *payload,int payloadLen)
 			}
 			memset(strBuf,0,sizeof(strBuf));
 			strcpy(strBuf,item->valuestring);
-			Send_PlayMusic(strBuf);
+			Send_PlayMusic((uint8_t *)strBuf);
 			Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
 		break;   
 			
@@ -1501,10 +1500,10 @@ int netData_process(char *payload,int payloadLen)
 			}
 			valueFlag=item->valueint;
 			if(valueFlag){
-					WriteOUT13(0);
+					WriteOUT13(GPIO_PIN_RESET);
 			}
 			else{
-					WriteOUT13(1);    // 亮灯
+					WriteOUT13(GPIO_PIN_SET);    // 亮灯
 			}  
 			Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
 		break;     
@@ -1624,10 +1623,10 @@ void StartMqttSendTask(void const *arg)
 			{	
 				sprintf(bufwifi_ack_head,"AT+MQTTPUBRAW=\"%s\",1,0,%d",gTopicInfo.cmdPost,messageSend.payloadlen);  //wifi应答头
 				osDelay(100);
-				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
+				atk_8266_send_cmd((uint8_t *)bufwifi_ack_head,strlen(bufwifi_ack_head));
 				osDelay(50);
 				__disable_irq();                                    //锁住
-				HAL_UART_Transmit_DMA(&huart3,(char*)messageSend.payload,messageSend.payloadlen);	
+				HAL_UART_Transmit_DMA(&huart3,(uint8_t *)messageSend.payload,messageSend.payloadlen);	
 				__enable_irq();
 //				HAL_UART_Transmit_DMA(&huart3,(char*)gAck,strlen(gAck));	
 				osDelay(10);
@@ -1636,30 +1635,30 @@ void StartMqttSendTask(void const *arg)
 		}
 	        
 		//读数据回复  发送采集数据的
-		if(gGlobalData.Send_Data_Task==true)
+		if(gGlobalData.Send_Data_Task == true)
 		{
  			messageSend.payload =gGlobalData.PlusePressDataSend;                                 //gGlobalData.PlusePressDataSend;
 			messageSend.payloadlen =gGlobalData.PlusePressDataLen;                                     //gGlobalData.PlusePressDataLen;
-			if(gGlobalData.rj45Status==true&&gGlobalData.netKind==1){
+			if(gGlobalData.rj45Status == true  &&  gGlobalData.netKind == 1){
 				MQTTPublish(gTopicInfo.streamPost, &messageSend);
 			}
-		  else if(gGlobalData.wifiStatus==true&&gGlobalData.netKind==2){
+		  else if(gGlobalData.wifiStatus == true && gGlobalData.netKind == 2){
 				sprintf(bufwifi_ack_head,"AT+MQTTPUBRAW=\"%s\",1,0,%d",gTopicInfo.streamPost,messageSend.payloadlen);  //wifi应答头   加了回车
 				osDelay(50);
-				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
+				atk_8266_send_cmd((uint8_t *)bufwifi_ack_head,strlen(bufwifi_ack_head));
 //				HAL_UART_Transmit_DMA(&huart3,(char*)bufwifi_ack_head,strlen(bufwifi_ack_head)); 
 				osDelay (50);
-				HAL_UART_Transmit_DMA(&huart3,(char*)messageSend.payload,messageSend.payloadlen);     //不行还是用这句
+				HAL_UART_Transmit_DMA(&huart3,(uint8_t *)messageSend.payload,messageSend.payloadlen);     //不行还是用这句
 
 				osDelay(10);            
             
 			}
-			else if(gGlobalData.yd4gStatus==true&&gGlobalData.netKind==3){
+			else if(gGlobalData.yd4gStatus == true  &&  gGlobalData.netKind == 3){
 				sprintf(buf4g_ack_head,"AT+QMTPUBEX=0,0,0,0,\"%s\",%d\r\n",gTopicInfo.streamPost,messageSend.payloadlen);//4g应答头
 				osDelay(10);
-				HAL_UART_Transmit_DMA(&huart6,(char*)buf4g_ack_head,strlen(buf4g_ack_head));
+				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)buf4g_ack_head,strlen(buf4g_ack_head));
 				osDelay(50);
-				HAL_UART_Transmit_DMA(&huart6,(char*)messageSend.payload,messageSend.payloadlen);
+				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)messageSend.payload,messageSend.payloadlen);
 				osDelay(10);          
 				
 			}
@@ -1668,64 +1667,56 @@ void StartMqttSendTask(void const *arg)
 		}
     
 		//写数据固定应答
-		if(gGlobalData.Send_Ack_Task==true)
+		if(gGlobalData.Send_Ack_Task == true)
 		{
             
  			messageSend.payloadlen = strlen(gAck);
 			messageSend.payload=gAck;
 
-			if(gGlobalData.rj45Status==true&&gGlobalData.netKind==1)
+			if(gGlobalData.rj45Status == true  &&  gGlobalData.netKind == 1)
 			{
 				MQTTPublish(gTopicInfo.cmdPost, &messageSend);
 				printf("ACK  to MQTT!\r\n");
 			}
-			else if(gGlobalData.wifiStatus==true&&gGlobalData.netKind==2)        													//wifi应答
+			else if(gGlobalData.wifiStatus == true  &&  gGlobalData.netKind == 2)        													//wifi应答
 			{	
 				
 				sprintf(bufwifi_ack_head,"AT+MQTTPUBRAW=\"%s\",1,0,%d",gTopicInfo.cmdPost,messageSend.payloadlen);  //wifi应答头				
 				osDelay(50);
-				atk_8266_send_cmd((char*)bufwifi_ack_head,strlen(bufwifi_ack_head));
+				atk_8266_send_cmd((uint8_t *)bufwifi_ack_head,strlen(bufwifi_ack_head));
 				osDelay(50);
 				__disable_irq(); 
-				HAL_UART_Transmit_DMA(&huart3,(char*)gAck,strlen(gAck));
+				HAL_UART_Transmit_DMA(&huart3,(uint8_t *)gAck,strlen(gAck));
 				__enable_irq();
 				osDelay(10);
 
 			}
-			else if(gGlobalData.yd4gStatus==true&&gGlobalData.netKind==3)																																		//4g应答
+			else if(gGlobalData.yd4gStatus == true  &&gGlobalData.netKind == 3)																																		//4g应答
 			{
 
 				sprintf(buf4g_ack_head,"AT+QMTPUBEX=0,0,0,0,\"%s\",%d\r\n",gTopicInfo.cmdPost,messageSend.payloadlen);//4g应答头				
 				osDelay(10);
-				HAL_UART_Transmit_DMA(&huart6,(char*)buf4g_ack_head,strlen(buf4g_ack_head));
+				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)buf4g_ack_head,strlen(buf4g_ack_head));
 				osDelay(50);
-				HAL_UART_Transmit_DMA(&huart6,(char*)gAck,strlen(gAck));
+				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)gAck,strlen(gAck));
 				osDelay(10);
 
 			}	
 			gGlobalData.Send_Ack_Task=false;
 
 		}
-// 		if(gGlobalData.Send_Update_Task==true)
-//		{
-// 			gGlobalData.Send_Update_Task=false;
-////			memset(gSendNetData,0,sizeof(gSendNetData));	
-//		}
-
 
 		//温湿度采集认为开启时 下面方法有效
- 		if(gGlobalData.Send_Ping_Task==true)
+ 		if(gGlobalData.Send_Ping_Task == true)
 		{
 			len=MQTTSerialize_pingreq(buf,sizeof(buf));
 			if(transport_sendPacketBuffer(MQ_NET_ID,buf,len)<=0)
 			{
-//				printf("PINGREQ Send errno\r\n");
+//			printf("PINGREQ Send errno\r\n");
 			}
 			gGlobalData.Send_Ping_Task=false;
 		}
-
-
-	}//while(1)
+	}
 }
 void cmdReplyProcess(char* msg,int msgLen)
 {
@@ -1737,8 +1728,6 @@ void boarReplyProcess(char*msg,int msgLen)
 {
 	return;
 }
-//char temp[600];
-//mqtt 消息处理
 void mqttMessageProcess(char*msg,int msgLen,char*topic,int topicLen)
 {
 	//printf("msg=%s\r\n",msg);   //debug
@@ -1825,7 +1814,7 @@ void SendMessageDialog(uint8_t *Msg,uint8_t Msglen)
 	char twobuf[2];    
 	char Recbuf[200],Msgbuf[200];
 	memset(Msgbuf,0,sizeof(Msgbuf));
-	strcpy(Recbuf,Msg);
+	strcpy(Recbuf,(const char *)Msg);
     
 	for(c=0;c<Msglen/2;c++)
 	{
@@ -1839,7 +1828,7 @@ void SendMessageDialog(uint8_t *Msg,uint8_t Msglen)
 	}
 	Send_Text_Box(1);
 	osDelay(50);
-	Send_Text_Content(Msgbuf,strlen(Msgbuf));
+	Send_Text_Content((uint8_t *)Msgbuf,strlen(Msgbuf));
 	osDelay(50);
 	Send_Text_SetButton(0,1);
 	osDelay(50);
@@ -1883,24 +1872,12 @@ void SendleftQR(char *buf,char QR_locatoin){
 /*线程：心跳包端口检测    未用到  */
 void StartSendheartTask(void const *arg)
 {
-	char bufwifi_ack_head[128]={0,};				//配置为接收模式
-	MQTTMessage messageSend;
-
-	//发布消息初始化
-	messageSend.dup = 0;
-	messageSend.qos = QOS0;
-	messageSend.retained = 0;
-	messageSend.payload =NULL;//gSendNetData;
-	messageSend.payloadlen = 0;//strlen(gSendNetData);
-	
 	while(1)
 	{
-		osDelay(10);
-
-	
+		osDelay(1);
 	}
-	
-
-
 
 }
+
+
+

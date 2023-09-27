@@ -300,7 +300,7 @@ int Restore_Default_Parameter(void)
 	strcpy((char*)gDeviceParam.version,"1.0.0");
 	memset (gDeviceParam.qrbuf,0,sizeof(gDeviceParam.qrbuf));	
 	//ÆÁÄ»×ó²à¶þÎ¬Âë
-	for(i=0;i<strlen(qrbuf);i++)
+	for(i=0;i<strlen((const char *)qrbuf);i++)
 		{
 			gDeviceParam.qrbuf[i]=qrbuf[i];  //JLY¶þÎ¬Âë
 		}	

@@ -139,7 +139,7 @@ void EC200MqttClientTask(void const * argument)	//EC20配置初始化，连接MQTT服务器
 			nums++;
 			if(nums>200&&gGlobalData.yd4gStatus==true&&cjdata==NULL){      //cjdata==NULL在处理解析的时候就不会发自身心跳影响解析
 				nums=0;
-				HAL_UART_Transmit_DMA(&huart6,aTxBuffer13,strlen(aTxBuffer13));				//"AT+QMTRECV: 0,0\r\n" 配置为接收模式    心跳包
+				HAL_UART_Transmit_DMA(&huart6,aTxBuffer13,sizeof(aTxBuffer13));				//"AT+QMTRECV: 0,0\r\n" 配置为接收模式    心跳包
 				osDelay(200);
 
 			}
@@ -158,9 +158,9 @@ void EC200MqttClientTask(void const * argument)	//EC20配置初始化，连接MQTT服务器
 				{
 					sprintf(buf4g_ack_head,"AT+QMTPUBEX=0,0,0,0,\"%s\",%d\r\n",gTopicInfo.cmdPost,messageSend.payloadlen);//4g应答头
 					osDelay(10);
-					HAL_UART_Transmit_DMA(&huart6,(char*)buf4g_ack_head,strlen(buf4g_ack_head));
+					HAL_UART_Transmit_DMA(&huart6,(uint8_t *)buf4g_ack_head,strlen(buf4g_ack_head));
 					osDelay (50);
-					HAL_UART_Transmit_DMA(&huart6,(char*)messageSend.payload,messageSend.payloadlen);
+					HAL_UART_Transmit_DMA(&huart6,(uint8_t *)messageSend.payload,messageSend.payloadlen);
 					osDelay(10);	
 				}	
 			}

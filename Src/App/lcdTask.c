@@ -565,6 +565,7 @@ void Send_Text_SetButton(uint8_t page,uint8_t state)
 	HAL_UART_Transmit_Lcd(buf,len,0xFFFF);	
 }
 
+/*
 //屏幕控制处理 
 void page_ctl_process(uint8_t ctlNum)
 {
@@ -622,6 +623,7 @@ void LcdData_Handle(uint8_t *src,uint16_t len)
 	
 	return ;
 }
+*/
 
 bool lcdTask_Semaphore_Init(void)
 {
@@ -641,32 +643,9 @@ bool lcdTask_Semaphore_Init(void)
 
 void Lcd_Task(void const * argument)
 {	
-
-	
-	/*
-	HAL_UART_Receive_DMA(&huart3, RecCom3,COM3_REC_MAX);
-
-	__HAL_UART_CLEAR_IDLEFLAG(&huart3);
-	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
-	*/   // debug
 	while(1)
 	{
-		
 
-//		printf("\r\n  com3=%s\r\n",RecCom3);	
-//		sprintf(ccRecCom3,"\r\ncom=%s\r\n",RecCom3);
-
-//		HAL_Delay(3000);
-/*		xSemaphoreTake(lcdSemaphore,portMAX_DELAY);
-	
-
-		LcdData_Handle(RecCom3,RecCom3Num);
-		
-		READ_REG(huart3.Instance->RDR);		
-		
-		SET_BIT(huart3.Instance->CR1, USART_CR1_RE);
-		HAL_UART_Receive_DMA(&huart3, RecCom3, COM3_REC_MAX); //若信号丢失 则会导致DMA未开启，不能放在这里
-*/  //debug
 	}//while
   /* USER CODE END 5 */ 
 }

@@ -287,7 +287,7 @@ void delay_us(uint32_t nus)
        uint32_t ticks;
        uint32_t told,tnow,reload,tcnt=0;
        if((0x0001&(SysTick->CTRL)) ==0)    //定时器未工作
-              vPortSetupTimerInterrupt();  //初始化定时器
+           vPortSetupTimerInterrupt();  //初始化定时器
  
        reload = SysTick->LOAD;                     //获取重装载寄存器值
        ticks = nus * (SystemCoreClock / 1000000);  //计数时间值

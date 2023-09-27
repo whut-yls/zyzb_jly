@@ -24,8 +24,8 @@ xSemaphoreGive(xSemaphore);
 pdMS_TO_TICKS(10000);	ms转换成滴答型时间
 mutex 型信号量不能用于中断中
 **/
-static char gPressPluseCnt=0;
-static char gGasPluseCnt=0;
+//static char gPressPluseCnt=0;
+//static char gGasPluseCnt=0;
 
 char gAck[JSON_ACK_MAX_LEN]={0,};
 //char gAck_heart[JSON_ACK_MAX_LEN]={0,};
@@ -669,7 +669,7 @@ void do_work_ctl(uint8_t workMode)
 					if(Level*1000 - (int)Level*1000 <= 1)
 						Level = ((Level + 0.1f)*1000+0.1f)/1000 ;
 					else
-						Level += 0.1;		
+						Level += 0.1f;		
 					Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
 					Dac8831_Set_Amp(Level, ch1buf);//幅值改变
 					Dac_level_CTL(1);   //档位改变后波形产生
@@ -679,7 +679,7 @@ void do_work_ctl(uint8_t workMode)
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
-				Send_LcdVoltage(5.84*Level);	
+				Send_LcdVoltage(5.84f*Level);	
 
 			} 
 			
@@ -690,7 +690,7 @@ void do_work_ctl(uint8_t workMode)
 					if(Level*1000 - (int)Level*1000 <= 1)
 						Level = ((Level - 0.1f)*1000+0.1f)/1000 ;
 					else
-						Level -= 0.1;
+						Level -= 0.1f;
 					Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
 					Dac8831_Set_Amp(Level, ch1buf);//幅值改变
 					Dac_level_CTL(1);   //档位改变后波形产生
@@ -700,7 +700,7 @@ void do_work_ctl(uint8_t workMode)
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
-				Send_LcdVoltage(5.84*Level);
+				Send_LcdVoltage(5.84f*Level);
 
 			}  
 			
@@ -749,7 +749,7 @@ void general_heartBag(int fun, int status, int netKind, int workState, int timeL
 	cJSON_AddNumberToObject(root,"HeartBag",NULL);			
 	cJSON_AddNumberToObject(root,KEY_DEV_ID,gDeviceParam.devId);		
 	cJSON_AddNumberToObject(root,KEY_SESSION,gGlobalData.sessionId);
-	cJSON_AddStringToObject(root,KEY_TIME,gGlobalData.ack_time);    //时间戳
+	cJSON_AddStringToObject(root,KEY_TIME,(const char *)gGlobalData.ack_time);    //时间戳
 	cJSON_AddNumberToObject(root,KEY_FUN,fun);
 	cJSON_AddStringToObject(root,KEY_FLAG,gDeviceParam.productKey);
 
@@ -792,3 +792,5 @@ void Send_heartBag(int fun, int status, int netKind, int workState, int timeLast
 		gGlobalData.Send_Heart_Bag_wifi=true;
 	return;
 }
+
+

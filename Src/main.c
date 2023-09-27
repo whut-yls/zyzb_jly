@@ -400,7 +400,7 @@ int main(void)
 	osDelay(20);
 	Send_LcdDevid_id(gDeviceParam.devId);  //发送设备id到屏幕显示
 	osDelay(20);
-	sprintf(version,"%s",gDeviceParam.version);
+	sprintf((char*)version,"%s",gDeviceParam.version);
 	Send_LcdVersion(version,strlen((const char*)version));	 //发送版本号到屏幕显示 
 	osDelay(20);	
 	Send_Text_SetButton(0,1);
@@ -496,7 +496,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	uint8_t *strstr1;
 	 if(huart->Instance == UART4){ //判断是哪个串口发生中断
-		strstr1=strstr((const char*)Voice_aRxBuffer,"music:");  //放音乐
+		strstr1 = strstr((const char*)Voice_aRxBuffer,"music:");  //放音乐
 		if(strstr1!=NULL)
 		{
 			Send_PlayMusic(strstr1+6);
@@ -2084,8 +2084,7 @@ void StartDefaultTask(void const * argument)
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);	//这一句是发送jly切换治疗方案给屏幕
 										osDelay(100);
-										if(Level <= 60)
-											Send_LcdVoltage(0.584*Level);										
+										Send_LcdVoltage(5.84f*Level);										
 
 										osDelay(200);
 										/*切换为下一通道*/
@@ -2275,7 +2274,7 @@ void Console_Task(void const * pvParameters)
 										if(Level*1000 - (int)Level*1000 <= 1)
 											Level = ((Level + 0.1f)*1000+0.1f)/1000 ;
 										else
-											Level += 0.1;
+											Level += 0.1f;
 										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
 										Dac8831_Set_Amp(Level, ch1buf);//幅值改变
 										Dac_level_CTL(1);   //档位改变后波形产生
@@ -2285,7 +2284,7 @@ void Console_Task(void const * pvParameters)
 												Level,
 												(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 									osDelay(100);
-									Send_LcdVoltage(5.84*Level);										
+									Send_LcdVoltage(5.84f*Level);										
 								}
 								
 								osDelay(500);//延时 防止点击过快
@@ -2299,7 +2298,7 @@ void Console_Task(void const * pvParameters)
 										if(Level*1000 - (int)Level*1000 <= 1)
 											Level = ((Level - 0.1f)*1000+0.1f)/1000 ;
 										else
-											Level -= 0.1;
+											Level -= 0.1f;
 										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
 										Dac8831_Set_Amp(Level, ch1buf);//幅值改变
 										Dac_level_CTL(1);   //档位改变后波形产生
@@ -2310,7 +2309,7 @@ void Console_Task(void const * pvParameters)
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 									osDelay(100);
 									if(Level <= 60)
-										Send_LcdVoltage(5.84*Level);
+										Send_LcdVoltage(5.84f*Level);
 								}
 								
 								osDelay(500);//延时 防止点击过快
