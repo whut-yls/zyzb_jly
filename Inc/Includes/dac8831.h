@@ -39,7 +39,6 @@ void Wave_select(uint8_t n, uint16_t *_pBuf);
 void Dac8831_Set_Amp(float amp, uint16_t *_pBuf);
 void DAC8831_Set_Data(uint16_t data);
 void DAC8831_Set_Data_Dma(uint16_t *_pbufch1, uint32_t _sizech1,uint32_t _ulFreq);
-void Dac_level_CTL(uint8_t work_mode);
 
 void DAC8831_SetCS(uint8_t _flag);
 uint16_t changeDac8831Vol_2_De(float Val);

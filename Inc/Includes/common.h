@@ -24,6 +24,12 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 #define	HIGH		1
 #define LOW			0
+
+#define Lcd_Button_to_Start    			1
+#define Lcd_Button_to_Pause    			2
+#define Lcd_Button_to_Reset    			3
+#define Lcd_Button_to_Level_Up 			4
+#define Lcd_Button_to_Level_Down    5
 /* USER CODE END Includes */
 /* Private defines ------------------------------*/
 //extern char gAck_heart[JSON_ACK_MAX_LEN];        //debug 2023/8/4

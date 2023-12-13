@@ -284,32 +284,27 @@ void Device_Page_Write(uint8_t IC_Addr,uint8_t Addr,uint8_t *buf,uint8_t len)//°
 //²ÎÕÕÕýµãÔ­×ÓÀý³Ì½øÐÐÐÞ¸Ä
 void delay_us(uint32_t nus)
 {
-       uint32_t ticks;
-       uint32_t told,tnow,reload,tcnt=0;
-       if((0x0001&(SysTick->CTRL)) ==0)    //¶¨Ê±Æ÷Î´¹¤×÷
-           vPortSetupTimerInterrupt();  //³õÊ¼»¯¶¨Ê±Æ÷
- 
-       reload = SysTick->LOAD;                     //»ñÈ¡ÖØ×°ÔØ¼Ä´æÆ÷Öµ
-       ticks = nus * (SystemCoreClock / 1000000);  //¼ÆÊýÊ±¼äÖµ
-       told=SysTick->VAL;                          //»ñÈ¡µ±Ç°ÊýÖµ¼Ä´æÆ÷Öµ£¨¿ªÊ¼Ê±ÊýÖµ£©
- 
-       while(1)
-       {
-              tnow=SysTick->VAL;          //»ñÈ¡µ±Ç°ÊýÖµ¼Ä´æÆ÷Öµ
-              if(tnow!=told)              //µ±Ç°Öµ²»µÈÓÚ¿ªÊ¼ÖµËµÃ÷ÒÑÔÚ¼ÆÊý
-              {         
- 
-                     if(tnow<told)             //µ±Ç°ÖµÐ¡ÓÚ¿ªÊ¼ÊýÖµ£¬ËµÃ÷Î´¼Æµ½0
-                          tcnt+=told-tnow;     //¼ÆÊýÖµ=¿ªÊ¼Öµ-µ±Ç°Öµ
- 
-                     else                  //µ±Ç°Öµ´óÓÚ¿ªÊ¼ÊýÖµ£¬ËµÃ÷ÒÑ¼Æµ½0²¢ÖØÐÂ¼ÆÊý
-                            tcnt+=reload-tnow+told;   //¼ÆÊýÖµ=ÖØ×°ÔØÖµ-µ±Ç°Öµ+¿ªÊ¼Öµ  £¨ÒÑ
-                                                      //´Ó¿ªÊ¼Öµ¼Æµ½0£© 
- 
-                     told=tnow;                //¸üÐÂ¿ªÊ¼Öµ
-                     if(tcnt>=ticks)break;     //Ê±¼ä³¬¹ý/µÈÓÚÒªÑÓ³ÙµÄÊ±¼ä,ÔòÍË³ö.
-              } 
-       }     
+	 uint32_t ticks;
+	 uint32_t told,tnow,reload,tcnt=0;
+	 if((0x0001&(SysTick->CTRL)) ==0)    //¶¨Ê±Æ÷Î´¹¤×÷
+		 vPortSetupTimerInterrupt();  //³õÊ¼»¯¶¨Ê±Æ÷
+
+	 reload = SysTick->LOAD;                     //»ñÈ¡ÖØ×°ÔØ¼Ä´æÆ÷Öµ
+	 ticks = nus * (SystemCoreClock / 1000000);  //¼ÆÊýÊ±¼äÖµ
+	 told=SysTick->VAL;                          //»ñÈ¡µ±Ç°ÊýÖµ¼Ä´æÆ÷Öµ£¨¿ªÊ¼Ê±ÊýÖµ£© 
+	 while(1)
+	 {
+			tnow=SysTick->VAL;          //»ñÈ¡µ±Ç°ÊýÖµ¼Ä´æÆ÷Öµ
+			if(tnow!=told)              //µ±Ç°Öµ²»µÈÓÚ¿ªÊ¼ÖµËµÃ÷ÒÑÔÚ¼ÆÊý
+			{         
+				 if(tnow<told)             //µ±Ç°ÖµÐ¡ÓÚ¿ªÊ¼ÊýÖµ£¬ËµÃ÷Î´¼Æµ½0
+					 tcnt+=told-tnow;     //¼ÆÊýÖµ=¿ªÊ¼Öµ-µ±Ç°Öµ
+				 else                  //µ±Ç°Öµ´óÓÚ¿ªÊ¼ÊýÖµ£¬ËµÃ÷ÒÑ¼Æµ½0²¢ÖØÐÂ¼ÆÊý
+					 tcnt+=reload-tnow+told;   //¼ÆÊýÖµ=ÖØ×°ÔØÖµ-µ±Ç°Öµ+¿ªÊ¼Öµ  £¨ÒÑ
+				 told=tnow;                //¸üÐÂ¿ªÊ¼Öµ
+				 if(tcnt>=ticks)break;     //Ê±¼ä³¬¹ý/µÈÓÚÒªÑÓ³ÙµÄÊ±¼ä,ÔòÍË³ö.
+			} 
+	 }     
 }
  
 //SystemCoreClockÎªÏµÍ³Ê±ÖÓ(system_stmf4xx.cÖÐ)£¬Í¨³£Ñ¡Ôñ¸ÃÊ±ÖÓ×÷Îª

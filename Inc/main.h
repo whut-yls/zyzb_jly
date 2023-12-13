@@ -261,8 +261,8 @@ extern uint16_t gREFVOL_VAL;
 
 
 
-#define Voice_RXBUFFERSIZE 10  //”Ô“Ùƒ£øÈΩ” ’
-extern unsigned char Voice_aRxBuffer[Voice_RXBUFFERSIZE];
+#define DEBUG_RXBUFFERSIZE 12  	//DEBUG UART4 TYPEC
+extern unsigned char DEBUG_aRxBuffer[DEBUG_RXBUFFERSIZE];
 
 extern unsigned char RecCom7[COM7_REC_MAX+1];	//pc
 extern uint16_t 			RecCom7Num;

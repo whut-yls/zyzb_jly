@@ -51,7 +51,7 @@
 
 SemaphoreHandle_t					ConsoleReceive_Semaphore=NULL; 
 SemaphoreHandle_t  	lcdSemaphore = NULL;
-unsigned char Voice_aRxBuffer[Voice_RXBUFFERSIZE];
+unsigned char DEBUG_aRxBuffer[DEBUG_RXBUFFERSIZE];
 unsigned char RecCom7[COM7_REC_MAX+1];	//pc
 uint16_t 			RecCom7Num=0;
 unsigned char RecCom3[COM3_REC_MAX+1];	//pc
@@ -494,42 +494,31 @@ int main(void)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	uint8_t *strstr1;
-	 if(huart->Instance == UART4){ //判断是哪个串口发生中断
-		strstr1 = strstr((const char*)Voice_aRxBuffer,"music:");  //放音乐
-		if(strstr1!=NULL)
-		{
-			Send_PlayMusic(strstr1+6);
-		
-		}
-		else if(Voice_aRxBuffer[0]==0x31){
-			switch(Voice_aRxBuffer[1])
-			{
-				case 0x31:Send_ComMusic(1);
-					break;
-				case 0x32:Send_ComMusic(2);
-					break;
-				case 0x33:Send_ComMusic(3);
-					break;
-				case 0x34:Send_ComMusic(4);
-					break;
-				case 0x35:Send_ComVolume(Voice_aRxBuffer[2]*10); //音量控制 第三位乘10
-					break;
-				case 0x36:Send_ComMode(Voice_aRxBuffer[3]);  //发送指令控制播放模式 00:单曲不循环  01:单曲循环播放  02:所有曲目循环播放  03:随机播放
-					break;
-				case 0x37:Send_ComMusic(2);
-					break;
-				case 0x38:Send_ComMusic(2);
-					break;
-				default:
-					break;
+	if(huart->Instance == UART4){
+		if(strstr((const char*)DEBUG_aRxBuffer,"WIFI->ATE")){             //DEBUG:OPEN WIFI DISPLAY
+			if(DEBUG_aRxBuffer[9] == 0x30){
+				atk_8266_send_cmd("ATE0",0xFFFF);								 //OFF
+				printf("WIFI ATE0 IS OFF\r\n");
 			}
-
+			else if(DEBUG_aRxBuffer[9] == 0x31){
+				atk_8266_send_cmd("ATE1",0xFFFF);                //ON
+				printf("WIFI ATE1 IS ON\r\n");
+			}
 		}
-
-  HAL_UART_Receive_IT(&huart4, (uint8_t *)Voice_aRxBuffer, Voice_RXBUFFERSIZE); //重新使能接收中断
-  }
-	 else if(huart->Instance == USART2){
+		else if(strstr((const char*)DEBUG_aRxBuffer,"EC4G->ATE")){             //DEBUG:OPEN EC20 4G DISPLAY
+			if(DEBUG_aRxBuffer[9] == 0x30){
+				HAL_UART_Transmit_DMA(&huart6,"ATE0\r\n",sizeof("ATE0\r\n"));   //ATE0								 //OFF
+				printf("EC20 4G ATE0 IS OFF\r\n");
+			}
+			else if(DEBUG_aRxBuffer[9] == 0x31){
+				HAL_UART_Transmit_DMA(&huart6,"ATE1\r\n",sizeof("ATE1\r\n"));   //ATE1               //ON
+				printf("EC20 4G ATE1 IS ON\r\n");
+			}
+		}		
+		memset(DEBUG_aRxBuffer,0,sizeof(DEBUG_aRxBuffer));
+		HAL_UART_Receive_IT(&huart4, (uint8_t *)DEBUG_aRxBuffer, DEBUG_RXBUFFERSIZE);	
+	} 
+	else if(huart->Instance == USART2){
 		 if(RecCom2[0] == 0x7E && RecCom2[5] == 0xEF){
 			 switch(RecCom2[2]){
 				 case 0xA3:
@@ -1237,9 +1226,7 @@ void MX_UART4_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART4_Init 2 */
-  HAL_UART_Receive_IT(&huart4, (uint8_t *)Voice_aRxBuffer, Voice_RXBUFFERSIZE);
-//  __HAL_UART_ENABLE_IT(&huart4,UART_IT_IDLE);                //空闲中断使能
-//  __HAL_UART_ENABLE_IT(&huart4,UART_IT_RXNE);                //接收中断使能
+	HAL_UART_Receive_IT(&huart4, (uint8_t *)DEBUG_aRxBuffer, DEBUG_RXBUFFERSIZE);
  /* USER CODE END UART4_Init 2 */
 
 }
@@ -1770,34 +1757,21 @@ void Set_Input_Output(uint8_t Flag)
 
 void Set_I2c_Register_Clear_Reset(void)
 {
-
-//    hi2c2.Instance->CR1             &= 0;
-//    hi2c2.Instance->CR2             &= 0;
-//    hi2c2.Instance->ICR             &= 0;
-//    hi2c2.Instance->ISR             |= 1<<0;
-//    hi2c2.Instance->OAR1            &= 0;
-//    hi2c2.Instance->OAR2            &= 0;
-//    hi2c2.Instance->PECR            &= 0;
-//    hi2c2.Instance->RXDR            &= 0;
-//    hi2c2.Instance->TIMEOUTR        &= 0;
-//    hi2c2.Instance->TIMINGR         &= 0;
-//    hi2c2.Instance->TXDR            &= 0;
-    
-    I2C2->CR1       &= 0;
-    I2C2->CR2       &= 0;
-    I2C2->ICR       &= 0;
-    I2C2->ISR       |= 1<<0;
-    I2C2->ISR       &= 1<<0;
-    I2C2->OAR1      &= 0;
-    I2C2->OAR2      &= 0;
-    I2C2->PECR      &= 0;
-    I2C2->RXDR      &= 0;
-    I2C2->TIMEOUTR  &= 0;
-    I2C2->TIMINGR   &= 0;
-    I2C2->TXDR      &= 0;
-    
-    MX_I2C2_Init();
-    return;
+	I2C2->CR1       &= 0;
+	I2C2->CR2       &= 0;
+	I2C2->ICR       &= 0;
+	I2C2->ISR       |= 1<<0;
+	I2C2->ISR       &= 1<<0;
+	I2C2->OAR1      &= 0;
+	I2C2->OAR2      &= 0;
+	I2C2->PECR      &= 0;
+	I2C2->RXDR      &= 0;
+	I2C2->TIMEOUTR  &= 0;
+	I2C2->TIMINGR   &= 0;
+	I2C2->TXDR      &= 0;
+	
+	MX_I2C2_Init();
+	return;
 }
 /* USER CODE END 4 */
 
@@ -1846,8 +1820,7 @@ void StartDefaultTask(void const * argument)
  		osDelay(10);
 		collectTime++;
 		if(collectTime>=1)	//每10ms更新一次
-		{
-			
+		{			
 			collectTime=0;
 			HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
 			HAL_ADC_Start_DMA(&hadc3, (uint32_t *)gADC3_DMA_BUF,N_NUM* AD3_NUM);//直流采样
@@ -1855,8 +1828,7 @@ void StartDefaultTask(void const * argument)
 		if(gDeviceParam.devLock==true)
 		{
 			continue;
-		} 
-		
+		} 	
 		//判断当前运行状态
 		if(gGlobalData.curWorkMode!=gGlobalData.oldWorkMode)
 		{
@@ -1876,28 +1848,22 @@ void StartDefaultTask(void const * argument)
 						break;
 					case WORK_MODE_ZT:
 						gGlobalData.unitLen=gGlobalData.useWorkArg[0].rateN*gGlobalData.useWorkArg[0].upTime/1000;      
-						gGlobalData.freqUnitTime=1000/gGlobalData.useWorkArg[0].rateN;
-				
+						gGlobalData.freqUnitTime=1000/gGlobalData.useWorkArg[0].rateN;				
 						if(gGlobalData.unitLen<1)
 						{
-								gGlobalData.unitLen=1;
+							gGlobalData.unitLen=1;
 						}
 						if(gGlobalData.freqUnitTime<1)
 						{
-								gGlobalData.freqUnitTime=1;
+							gGlobalData.freqUnitTime=1;
 						}
 						channelTime=0;
 						unitTime=0;
 						//继电器设置为采样模式
 						set_sampleMode(MODE_ZT);  
-
-						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
-                        
-                        //输出打开 //输入打开 
+						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11                       
+            //输出打开 //输入打开 
 						Set_Input_Output(sON);   //采集
- 
-						
-						//gGlobalData.curWorkState = WORK_PAUSE;
 						HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_SET); //运行红灯 set灭 reset亮
 						HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET); //运行绿灯 set灭 reset亮
 						send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中
@@ -1909,29 +1875,23 @@ void StartDefaultTask(void const * argument)
 						//治疗模式
 						set_sampleMode(MODE_ZL);
 						osDelay(500);
-
 						Wave_select(gGlobalData.useWorkArg[0].waveTreat, ch1buf);									                  //波形选择
-						Dac8831_Set_Amp(gGlobalData.useWorkArg[0].level, ch1buf);									                  //幅值改变
-			
-						DAC8831_Set_Data_Dma(ch1buf,sizeof(ch1buf)/2,gGlobalData.useWorkArg[0].freqTreat);					//定时器开启产生波形
-					
+						Dac8831_Set_Amp(gGlobalData.useWorkArg[0].level, ch1buf);									                  //幅值改变		
+						DAC8831_Set_Data_Dma(ch1buf,sizeof(ch1buf)/2,gGlobalData.useWorkArg[0].freqTreat);					//定时器开启产生波形				
 						send_treatSel(gGlobalData.useWorkArg[0].freqTreat,
 									gGlobalData.useWorkArg[0].level,
 								 (gGlobalData.useWorkArg[0].timeTreat)/60);	 													                  //这一句是发送jly下发治疗方案给屏幕
 						osDelay(100);
 						Send_LcdVoltage(5.84*gGlobalData.useWorkArg[0].level);	
 						osDelay(100);
-						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗	
-                    
+						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗	                   
 						Set_Input_Output(sON);   //治疗 输出打开  //输入打开
-
 						channelTime=0;	//开始计时
 						osDelay(200);
 						send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中
 						osDelay(100);
 						send_LcdOutStatus(1);
-					break;
-
+						break;
 					default:
 						break;
 				}
@@ -1942,7 +1902,6 @@ void StartDefaultTask(void const * argument)
 			switch(gGlobalData.curWorkState)
 			{
 				case WORK_START:
-
 						if(gGlobalData.curWorkMode==WORK_MODE_ZT && gGlobalData.isConnect==1)     //有网才进行采集
 						{
                 isCollect=true;                                
@@ -1971,18 +1930,13 @@ void StartDefaultTask(void const * argument)
 										taskEXIT_CRITICAL();
 									}else{
 										isCollect=false;
-//										gGlobalData.currentUnitNum=0;           //避免导致切换通道导致数据下发不全
 										collectDataCount=0;//设置为0
-										/*关闭上一次的采集通道*/
-                                       
-                    Set_Input_Output(sOFF);     //采集
-								
+										/*关闭上一次的采集通道*/                                
+                    Set_Input_Output(sOFF);     //采集							
 										gGlobalData.channelPos++;
 										/*切换为下一通道*/
-										//输出打开  //输入打开
-                                        
-                    Set_Input_Output(sON);       //采集
-                                        
+										//输出打开  //输入打开                                       
+                    Set_Input_Output(sON);       //采集                                        
 										unitTime=0;
 										osDelay(10);//通道切换后做一个延时 让数据稳定后再采集
 										Collect_Data_state = true;
@@ -2012,12 +1966,10 @@ void StartDefaultTask(void const * argument)
 								{
 									if(channelTime-countTime>=4000 && (uint8_t)Level>10){
 										do_work_ctl(5);
-										countTime=channelTime;
-										
+										countTime=channelTime;									
 									}
 								}
-							}
-							
+							}							
 								//判断治疗时间是否到，且不是最后一个通道，切换下一通道,并更新通道位置、重置包位置计数、时间计数
 								if(channelTime>=(uint32_t)(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat + gGlobalData.useWorkArg[gGlobalData.current_treatNums].waitTime)*1000)
 								{
@@ -2068,8 +2020,7 @@ void StartDefaultTask(void const * argument)
 										gGlobalData.Auto_Level_Ctl = 0;
 									}else{
 									//说明时间到了但是不是最后一个治疗方案，切下一个治疗方案
-										Set_Input_Output(sOFF);    //治疗
-		             
+										Set_Input_Output(sOFF);    //治疗	             
 										gGlobalData.channelPos++;
 										osDelay(1000);
 									//切换波形
@@ -2077,33 +2028,26 @@ void StartDefaultTask(void const * argument)
 										Level = gGlobalData.useWorkArg[gGlobalData.current_treatNums].level;
 										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
 										Dac8831_Set_Amp(Level, ch1buf);//幅值改变
-										
-										DAC8831_Set_Data_Dma(ch1buf,sizeof(ch1buf)/2,gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat);					//定时器开启产生波形										
-										
 										send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);	//这一句是发送jly切换治疗方案给屏幕
 										osDelay(100);
 										Send_LcdVoltage(5.84f*Level);										
-
-										osDelay(200);
+							  		osDelay(200);
 										/*切换为下一通道*/
-										//输出打开   //输入打开
-                                        
-										Set_Input_Output(sON);      //治疗
-                                        
+										//输出打开   //输入打开                                       
+										Set_Input_Output(sON);      //治疗                                       
 										channelTime=0;										
 									}
 								}
 								//2023.02.01  
  					}
 					break;
-				case WORK_PAUSE:	  	 
+				case WORK_PAUSE:						
  					break;
-				case WORK_STOP:	      
-						 channelTime=0;
-					break;
-				
+				case WORK_STOP:
+					 channelTime=0;
+					break;			
 				default:
 					break;
 			}
@@ -2123,6 +2067,9 @@ void StartLoopTask(void const * argument)
   /* USER CODE END StartLoopTask */
 }
 
+uint8_t buf1[25];
+uint8_t buf2[25];
+uint8_t DEVVID[25];
 
 
 void Console_Task(void const * pvParameters)
@@ -2135,184 +2082,124 @@ void Console_Task(void const * pvParameters)
 
 	for(;;)
 	{
-	
 		osDelay(10);
 		xSemaphoreTake(ConsoleReceive_Semaphore,portMAX_DELAY);
-//		5a a506 83 1800 00 01 00 02
-  
-		if(RecSen[0] == 0x5A && RecSen[1] == 0xA5)
-			{
-					if(RecSen[3] == 0x83) //wifi设置相关
+//		5a a506 83 1800 00 01 00 02 
+		if(RecSen[0] == 0x5A && RecSen[1] == 0xA5){
+			if(RecSen[3] == 0x83) //wifi设置相关
+				{
+				if(RecSen[4] == 0x18 && RecSen[5] == 0x20)
 					{
-						if(RecSen[4] == 0x18 && RecSen[5] == 0x20)
+						//存wifi名称
+						memset(gDeviceParam.wifiArg.WifiName,0,sizeof(gDeviceParam.wifiArg.WifiName));
+						for(uint8_t i = 7;i < sizeof(gDeviceParam.wifiArg.WifiName); ++i)
 						{
-							//存wifi名称
-							memset(gDeviceParam.wifiArg.WifiName,0,sizeof(gDeviceParam.wifiArg.WifiName));
-							for(uint8_t i = 7;i < sizeof(gDeviceParam.wifiArg.WifiName); ++i)
-							{
-								if(RecSen[i] == 0xFF)
-									break;
-								gDeviceParam.wifiArg.WifiName[i-7] = RecSen[i];
-							}
-						}
-						if(RecSen[4] == 0x18 && RecSen[5] == 0x30)
-						{
-							//存wifi密码
-							memset(gDeviceParam.wifiArg.WifiPwd,0,sizeof(gDeviceParam.wifiArg.WifiPwd));
-							for(uint8_t i = 7;i < sizeof(gDeviceParam.wifiArg.WifiPwd); ++i)
-							{
-								if(RecSen[i] == 0xFF)
-									break;
-								gDeviceParam.wifiArg.WifiPwd[i-7] = RecSen[i];
-							}
-						}
-						if(RecSen[4] == 0x19 && RecSen[5] == 0x10)  //屏幕提示框按键后便不可用
-						{
-								Send_Text_SetButton(0,0);	//文本框按键默认不可用
-								osDelay(50);
+							if(RecSen[i] == 0xFF)
+								break;
+							gDeviceParam.wifiArg.WifiName[i-7] = RecSen[i];
 						}
 					}
-				 if(RecSen[2] == 0x06)
-				 {
-					 switch(RecSen[8])
+					else if(RecSen[4] == 0x18 && RecSen[5] == 0x30)
+					{
+						//存wifi密码
+						memset(gDeviceParam.wifiArg.WifiPwd,0,sizeof(gDeviceParam.wifiArg.WifiPwd));
+						for(uint8_t i = 7;i < sizeof(gDeviceParam.wifiArg.WifiPwd); ++i)
 						{
-							case 0x01:   //开始按钮
-									if(gGlobalData.curWorkState != WORK_START)
-									{	
-										gGlobalData.cur_heart_state=WORKING;
-										gGlobalData.curWorkState=WORK_START;
-											//2023.1.31 WWJZ
-										if(gGlobalData.curWorkMode==WORK_MODE_ZL){//处理在治疗的情况下暂停后再次开始                                       
-                        set_sampleMode(MODE_ZL);
-												osDelay(200);
-												send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中	
-												send_LcdOutStatus(1);											 
-										 }//2023.1.31 WWJZ
-										 osDelay(200);
-										 send_LcdSync(1);  //修改屏幕运行状态									
-										 if(gGlobalData.curWorkMode==WORK_MODE_ZT){											 
-											 osDelay(200);	
-											 send_LcdWorkStatus(3);//kardos 2023.02.03 修改设备工作状态为：经络检测中												
-											 set_sampleMode(MODE_ZT);
-											 osDelay(200);                                            
-											 isCollect=true;
-											 break;
-										 }                     
-										 cnt_heartbag = 0;												//发送心跳清空心跳计数器
-										 gGlobalData.heartbag_flage = 1;
-									 }
-									break;
+							if(RecSen[i] == 0xFF)
+								break;
+							gDeviceParam.wifiArg.WifiPwd[i-7] = RecSen[i];
+						}
+					}
+					else if(RecSen[4] == 0x18 && RecSen[5] == 0x40)
+					{
+						//修改服务器地址
+						memset(gDeviceParam.ServerIpAddress,0,sizeof(gDeviceParam.ServerIpAddress));
+						for(uint8_t i = 7;i < (sizeof(buf1)+7); ++i)
+						{
+							if(RecSen[i] == 0xFF)
+								break;
+						buf1[i-7] = RecSen[i];
+						}
+						char *token = strtok(buf1, ".");
+						int i=0;
+						while (token != NULL && i < 4) 
+						{
+							gDeviceParam.ServerIpAddress[i] = atoi(token); // 将分割出的字符串转换为整数
+							token = strtok(NULL, "."); // 继续分割
+							i++;
+						}
+					}	
+					
+					else if(RecSen[4] == 0x18 && RecSen[5] == 0x50)
+					{
+						//修改端口号
+					
+						memset(buf2,0,sizeof(buf2));
+						for(uint8_t i = 7;i < (sizeof(buf2)+7); ++i)
+						{
+							if(RecSen[i] == 0xFF)
+								break;
+							buf2[i-7] = RecSen[i];
+						}
+							gDeviceParam.mqArg.mqttPort=atoi(buf2);				
+					}			
+					else if(RecSen[4] == 0x18 && RecSen[5] == 0x60)
+					{
+						//修改设备编号
+					//	memset(gDeviceParam.devId,0,sizeof(gDeviceParam.devId));
+						memset(gDeviceParam.mqArg.MQ_Username,0,sizeof(gDeviceParam.mqArg.MQ_Username));
+						for(uint8_t i = 7;i < (sizeof(DEVVID)+7); ++i)
+						{
+							if(RecSen[i] == 0xFF){
+								gDeviceParam.qrbuf[i+12] = 0x2d;
+								break;
+							}
+							else{	
+								gDeviceParam.mqArg.MQ_Username[i-7] = RecSen[i];
+								gDeviceParam.qrbuf[i+12] = RecSen[i];
+							}
+						}
+						gDeviceParam.devId=atoi(gDeviceParam.mqArg.MQ_Username);
+					}						
+					
+					else if(RecSen[4] == 0x19 && RecSen[5] == 0x10)  //屏幕提示框按键后便不可用
+					{
+							Send_Text_SetButton(0,0);	//文本框按键默认不可用
+							osDelay(50);
+					}
+				}
+			 if(RecSen[2] == 0x06)
+			 {
+				 switch(RecSen[8])
+					{
+						case 0x01:   //开始按钮
+							if(gGlobalData.curWorkState != WORK_START)
+								{
+									do_work_ctl(Lcd_Button_to_Start);                     
+									cnt_heartbag = 0;												//发送心跳清空心跳计数器
+									gGlobalData.heartbag_flage = 1;
+								}
+								break;
 							case 0x02:  //暂停按钮
-									if(gGlobalData.curWorkState == WORK_START){
-											gGlobalData.cur_heart_state=PAUSE;
-											gGlobalData.curWorkState=WORK_PAUSE;
-											set_sampleMode(MODE_CLOSE);					 
-										  osDelay(20);
-										  send_LcdSync(0); 
-										  osDelay(200);
-										  send_LcdWorkStatus(5);//kardos 2023.02.03 修改设备工作状态为：设备暂停状态
-										  send_LcdOutStatus(0);
-										  if(gGlobalData.curWorkMode == WORK_MODE_ZT)
-										  {
-												 isCollect=false;//2023.03.31 ZKM
-												 Collect_Data_state =true;
-										  }	 
-										  cnt_heartbag = 0;												//发送心跳清空心跳计数器
-										  gGlobalData.Auto_Level_Ctl = 0;
-										  gGlobalData.heartbag_flage = 1;
-									}
+								if(gGlobalData.curWorkState == WORK_START){
+									do_work_ctl(Lcd_Button_to_Pause); 
+									cnt_heartbag = 0;												//发送心跳清空心跳计数器							
+									gGlobalData.heartbag_flage = 1;
+								}
 								break;
 							case 0x03://复位按钮
-//									Set_Input_Output(sOFF);                       //多了一句复位先寻址关闭上一次的两通道
-									Send_Fix_Ack(100,STATUS_OK,"OK");//发送给上位机告诉执行了复位
-									gGlobalData.cur_heart_state=LEISURE;
-									gGlobalData.curWorkState=WORK_STOP; 
-                  collectDataCount=0;
-									Level=0;
-                  gGlobalData.useWorkArg[gGlobalData.current_treatNums].level = Level;  //复位后挡位调节为0
-									gGlobalData.current_treatNums=0;//2023.02.01                                 
-									set_sampleMode(MODE_CLOSE); 
-									HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
-									gGlobalData.channelPos=0;
-									HAL_PCA9554_outputAll(0);
-									HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET); //运行红灯 set灭 reset亮
-									HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET); //运行绿灯 set灭 reset亮
-									gGlobalData.curWorkMode=WORK_MODE_WT;
-									gGlobalData.oldWorkMode=gGlobalData.curWorkMode;
-									gGlobalData.curWorkState=WORK_STOP;
-									osDelay(20); 
-									send_LcdWorkStatus(1);//kardos 2023.02.03 修改设备工作状态为：设备待机状态
-									osDelay(100);
-									gGlobalData.Alltime=0; //倒计时清空
-									Countdown_Treat(gGlobalData.Alltime);//刷新倒计时
-									osDelay(100);
-									send_treatSel(0,0,0);
-									osDelay(100);
-									Send_LcdVoltage(0);
-									osDelay(100);
-									send_visitNumber(gbkNum0);
-									osDelay(100);
-									send_visitName(gbk0,8);
-									osDelay(100);
-									send_visitAge(0);
-									osDelay(100);
-									send_visitSex(0);
-									osDelay(100);	
-									send_LcdSync(0);
-									osDelay(100);
-									Send_ComMusic(3);
-									osDelay(100);
-									send_lcdQRcode();
-									send_LcdOutStatus(0);
-									isCollect=false;//2023.03.31 ZKM
-									gGlobalData.Auto_Level_Ctl = 0;
-									HAL_TIM_Base_DeInit(&htim12);  //不产生波形
-									break;
+								do_work_ctl(Lcd_Button_to_Reset); 
+								break;
 							case 0x05://档位加
-								if(Level <=60){
-									for(int level_cd = 0 ; level_cd < 10 ; level_cd++){
-										if(Level*1000 - (int)Level*1000 <= 1)
-											Level = ((Level + 0.1f)*1000+0.1f)/1000 ;
-										else
-											Level += 0.1f;
-										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
-										Dac8831_Set_Amp(Level, ch1buf);//幅值改变
-										Dac_level_CTL(1);   //档位改变后波形产生
-										osDelay(10);	
-									}
-									send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
-												Level,
-												(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
-									osDelay(100);
-									Send_LcdVoltage(5.84f*Level);										
-								}
-								
-								osDelay(500);//延时 防止点击过快
+								do_work_ctl(Lcd_Button_to_Level_Up);
+								osDelay(500);														//延时 防止点击过快
 								cnt_heartbag = 0;												//发送心跳清空心跳计数器
 								gGlobalData.heartbag_flage = 1;
 								break;
 								//level  -5
 							case 0x06://档位减
-								if(Level >=5){
-									for(int level_acd = 0 ; level_acd < 10 ; level_acd++){
-										if(Level*1000 - (int)Level*1000 <= 1)
-											Level = ((Level - 0.1f)*1000+0.1f)/1000 ;
-										else
-											Level -= 0.1f;
-										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
-										Dac8831_Set_Amp(Level, ch1buf);//幅值改变
-										Dac_level_CTL(1);   //档位改变后波形产生
-										osDelay(10);	
-									}
-									send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
-											Level,
-											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
-									osDelay(100);
-									if(Level <= 60)
-										Send_LcdVoltage(5.84f*Level);
-								}
-								
-								osDelay(500);//延时 防止点击过快
+								do_work_ctl(Lcd_Button_to_Level_Down);
+								osDelay(500);														//延时 防止点击过快
 								cnt_heartbag = 0;												//发送心跳清空心跳计数器
 							  gGlobalData.heartbag_flage = 1;
 								break;
@@ -2322,9 +2209,20 @@ void Console_Task(void const * pvParameters)
 							case 0x50://wifi更改确认指令
 								gGlobalData.Wifi_set = true;
 								Save_Parameter();
-								printf("wifi_go_to_con\r\n");
+								printf("wifi_go_to_con_LCD\r\n");
 								send_lcdPage(0);
 								break;
+							case 0x60://服务器修改指令后自动重启                                                                          
+								Save_Parameter();
+								send_lcdPage(0);
+								osDelay(10);
+								Send_LcdDevid_id(gDeviceParam.devId);  //发送设备id到屏幕显示
+								osDelay(10);	
+								do_work_ctl(3);
+								osDelay(10);
+								send_QRInfo(0,0);
+								NVIC_SystemReset();
+								break;														
 							default: 
 								break;		
 						}

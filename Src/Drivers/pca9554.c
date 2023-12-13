@@ -16,10 +16,10 @@ bool HAL_PCA9554_init(void)
 
 	for(int i=0;i<8;i++){
 
-//        Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
-        Set_I2c_Register_Clear_Reset();
+//    Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
+    Set_I2c_Register_Clear_Reset();
 		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+(i*2),send,sizeof(send),0xFff)!=HAL_OK){
-		return false;
+			return false;
 		}
 		osDelay(50);
 
@@ -33,10 +33,10 @@ bool HAL_PCA9554_readIn(uint8_t adr,uint8_t* data)
 {
 	uint8_t send[1]={0x01};
 	uint8_t oldVal=0;
-    Set_I2c_Register_Clear_Reset();
+  Set_I2c_Register_Clear_Reset();
 	if(HAL_I2C_Master_Transmit(&hi2c2,adr,send,1,0xFff) == HAL_OK)
 	{
-        Set_I2c_Register_Clear_Reset();
+    Set_I2c_Register_Clear_Reset();
 		if(HAL_I2C_Master_Receive(&hi2c2,adr,&oldVal,1,0xFFF) != HAL_OK)
 		{
 			return false;
@@ -192,11 +192,9 @@ bool set_channle_status(uint8_t channel,uint8_t dir,uint8_t status)
 		update_oldValue(sNum,dir,status,&oldVal);
 	}
 	//写操作
-	send[1]=oldVal;
-    
+	send[1]=oldVal;    
 //    Device_Write_One_Byte(address,send[0],send[1]);
-    
-    Set_I2c_Register_Clear_Reset();
+   Set_I2c_Register_Clear_Reset();
 	if(HAL_I2C_Master_Transmit(&hi2c2,address,send,sizeof(send),0xFff)!=HAL_OK){
 		return false;
 	}
@@ -223,7 +221,7 @@ bool set_sampleMode(uint8_t mode)
 //			WriteOUT5(GPIO_PIN_RESET);       //最开始的治疗继电器，也用不到给注释掉 2023/8/11 by yls
 			WriteOUT6(GPIO_PIN_SET);         //开启大椎5v输出
         
-            WriteOUT7(GPIO_PIN_RESET);       //7 8 9当时写来可控采集的挡位的，现在不用可调了全置0
+      WriteOUT7(GPIO_PIN_RESET);       //7 8 9当时写来可控采集的挡位的，现在不用可调了全置0
 			WriteOUT8(GPIO_PIN_RESET);      
 			WriteOUT9(GPIO_PIN_RESET);
         

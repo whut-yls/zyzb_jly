@@ -576,8 +576,7 @@ void do_work_ctl(uint8_t workMode)
 	uint8_t gbk0[8]={0,};
 	uint8_t gbkNum0[13]={0,};
 	switch(workMode){
-		case 1:
-					
+		case Lcd_Button_to_Start:				
 			if(gGlobalData.curWorkState != WORK_START){			
 				 gGlobalData.cur_heart_state=WORKING;
          gGlobalData.curWorkState=WORK_START;
@@ -599,7 +598,7 @@ void do_work_ctl(uint8_t workMode)
         } 
 			}	
 			break;
-		case 2:			
+		case Lcd_Button_to_Pause:			
 			if(gGlobalData.curWorkState == WORK_START){	
 					gGlobalData.cur_heart_state = PAUSE;
 					gGlobalData.curWorkState=WORK_PAUSE;
@@ -617,7 +616,7 @@ void do_work_ctl(uint8_t workMode)
 			} 
       gGlobalData.Auto_Level_Ctl = 0;   
 			break;
-		case 3:
+		case Lcd_Button_to_Reset:
 //			Set_Input_Output(sOFF);
 			Send_Fix_Ack(100,STATUS_OK,"OK");//发送给上位机告诉执行了复位			
 			gGlobalData.cur_heart_state = LEISURE; 
@@ -637,73 +636,58 @@ void do_work_ctl(uint8_t workMode)
 			gGlobalData.curWorkState=WORK_STOP;
 			osDelay(20); 
 			send_LcdWorkStatus(1);//kardos 2023.02.03 修改设备工作状态为：设备待机状态
-			osDelay(100);
+			osDelay(20);
 			gGlobalData.Alltime=0; //倒计时清空
 			Countdown_Treat(gGlobalData.Alltime);//刷新倒计时
-			osDelay(100);
+			osDelay(20);
 			send_treatSel(0,0,0);
-			osDelay(100);
+			osDelay(20);
 			Send_LcdVoltage(0);
-			osDelay(100);
+			osDelay(20);
 			send_visitNumber(gbkNum0);
-			osDelay(100);
+			osDelay(20);
 			send_visitName(gbk0,8);
-			osDelay(100);
+			osDelay(20);
 			send_visitAge(0);
-			osDelay(100);
+			osDelay(20);
 			send_visitSex(0);
-			osDelay(100);	
+			osDelay(20);	
 			send_LcdSync(0);
-			osDelay(100);
+			osDelay(20);
 			Send_ComMusic(3);
-			osDelay(100);
+			osDelay(20);
 			send_lcdQRcode();
+			osDelay(20);
 			send_LcdOutStatus(0);
 			isCollect=false;//2023.03.31 ZKM
 			gGlobalData.Auto_Level_Ctl = 0;
 			HAL_TIM_Base_DeInit(&htim12);  //不产生波形
 			break;
-		case 4:
-			if(Level <=60){
-				for(int level_CD = 0 ; level_CD < 10 ; level_CD++){
-					if(Level*1000 - (int)Level*1000 <= 1)
-						Level = ((Level + 0.1f)*1000+0.1f)/1000 ;
-					else
-						Level += 0.1f;		
-					Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
-					Dac8831_Set_Amp(Level, ch1buf);//幅值改变
-					Dac_level_CTL(1);   //档位改变后波形产生
-					osDelay(1);
-				}
+		case Lcd_Button_to_Level_Up:
+			if(Level <=60){		
+				Level += 1;		
+				Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
+				Dac8831_Set_Amp(Level, ch1buf);//幅值改变
+				osDelay(1);		
 				send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
 				Send_LcdVoltage(5.84f*Level);	
-
-			} 
-			
+			} 			
 			break;
-		case 5:
+		case Lcd_Button_to_Level_Down:
 			if(Level >=5){
-				for(int level_ACD = 0 ; level_ACD < 10 ; level_ACD++){
-					if(Level*1000 - (int)Level*1000 <= 1)
-						Level = ((Level - 0.1f)*1000+0.1f)/1000 ;
-					else
-						Level -= 0.1f;
-					Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
-					Dac8831_Set_Amp(Level, ch1buf);//幅值改变
-					Dac_level_CTL(1);   //档位改变后波形产生
-					osDelay(1);					
-				}
+				Level -= 1;
+				Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
+				Dac8831_Set_Amp(Level, ch1buf);//幅值改变
+				osDelay(1);					
 				send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
 				Send_LcdVoltage(5.84f*Level);
-
-			}  
-			
+			}  			
 			break;
 		default: 
 			break;

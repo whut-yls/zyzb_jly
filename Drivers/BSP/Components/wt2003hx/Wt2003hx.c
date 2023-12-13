@@ -32,7 +32,7 @@ void Send_PlayMusic(uint8_t *file)
 	buf[7]=crc16;    
 	buf[8]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);		
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);		
 }	
 
 
@@ -75,7 +75,7 @@ void Send_ComMusic(uint8_t com)
 	buf[3]=crc16;
 	buf[4]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 
 }
 
@@ -96,7 +96,7 @@ void Send_ComVolume(uint8_t size)
 	buf[4]=crc16;
 	buf[5]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 
 }
 
@@ -124,7 +124,7 @@ void Send_ComMode(uint8_t mode)
 
 	buf[5]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 
 }
 
@@ -159,7 +159,7 @@ void Send_Combination_play(uint8_t length,uint16_t *mode)
 	buf[j++]=crc16;
 	buf[j++]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 
 }
 
@@ -191,7 +191,7 @@ void Send_Insert_PMusic(uint16_t position)
 	buf[5]=crc16;
 	buf[6]=0xEF;
 	
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 	
 //发送音频输出方式切换
@@ -217,7 +217,7 @@ void Send_Output_Change(uint8_t mode)
 	buf[5]=0xEF;
 
 	
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 
@@ -248,7 +248,7 @@ void Send_Goto_Low_Power(uint8_t mode)
 
 	buf[5]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 
@@ -276,7 +276,7 @@ void Send_Current_Version(void)
 
 	buf[4]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 
@@ -298,7 +298,7 @@ void Send_Current_Volume(void)
 
 	buf[4]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 
@@ -327,7 +327,7 @@ void Send_Current_Status(void)
 
 	buf[4]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 //查询当前音乐文件总数
@@ -348,7 +348,7 @@ void Send_Number_Song(void)
 
 	buf[4]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 
@@ -370,7 +370,7 @@ void Send_Number_Address(void)
 
 	buf[4]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 //波特率切换
@@ -402,7 +402,7 @@ void Send_Change_Baud(uint8_t *parameter)
 	buf[6]=crc16;
 	buf[7]=0xEF;
 
-	HAL_UART_Transmit(&huart2,buf,strlen(buf),0xFFFF);	
+	HAL_UART_Transmit(&huart2,buf,strlen((const char *)buf),0xFFFF);	
 }
 
 
