@@ -6,6 +6,6 @@ motordriver\mqttserializepublish.o: ..\Src\mqtt\MQTTSubscribe.h
 motordriver\mqttserializepublish.o: ..\Src\mqtt\MQTTUnsubscribe.h
 motordriver\mqttserializepublish.o: ..\Src\mqtt\MQTTFormat.h
 motordriver\mqttserializepublish.o: ..\Src\mqtt\StackTrace.h
-motordriver\mqttserializepublish.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\mqttserializepublish.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 motordriver\mqttserializepublish.o: ..\Src\mqtt\MQTTPacket.h
-motordriver\mqttserializepublish.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\mqttserializepublish.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

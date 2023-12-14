@@ -1,9 +1,9 @@
 motordriver\spiflash.o: ..\Src\Drivers\spiFlash.c
 motordriver\spiflash.o: ..\Inc\Includes\spiFlash.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\spiflash.o: ../Inc/stm32h7xx_hal_conf.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc.h
@@ -18,8 +18,8 @@ motordriver\spiflash.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\spiflash.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\spiflash.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -65,5 +65,5 @@ motordriver\spiflash.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timer
 motordriver\spiflash.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\spiflash.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 motordriver\spiflash.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-motordriver\spiflash.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\spiflash.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
 motordriver\spiflash.o: ..\Inc\Includes\parameter.h

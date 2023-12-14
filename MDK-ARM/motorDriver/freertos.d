@@ -1,7 +1,7 @@
 motordriver\freertos.o: ../Src/freertos.c
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-motordriver\freertos.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\freertos.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\freertos.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\freertos.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\freertos.o: ../Inc/FreeRTOSConfig.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
@@ -25,7 +25,7 @@ motordriver\freertos.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\freertos.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\freertos.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\freertos.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -56,11 +56,11 @@ motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 motordriver\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-motordriver\freertos.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\freertos.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 motordriver\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-motordriver\freertos.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\freertos.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
 motordriver\freertos.o: ..\Inc\Includes\parameter.h

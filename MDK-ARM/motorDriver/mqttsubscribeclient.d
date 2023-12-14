@@ -6,6 +6,6 @@ motordriver\mqttsubscribeclient.o: ..\Src\mqtt\MQTTSubscribe.h
 motordriver\mqttsubscribeclient.o: ..\Src\mqtt\MQTTUnsubscribe.h
 motordriver\mqttsubscribeclient.o: ..\Src\mqtt\MQTTFormat.h
 motordriver\mqttsubscribeclient.o: ..\Src\mqtt\StackTrace.h
-motordriver\mqttsubscribeclient.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\mqttsubscribeclient.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 motordriver\mqttsubscribeclient.o: ..\Src\mqtt\MQTTPacket.h
-motordriver\mqttsubscribeclient.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\mqttsubscribeclient.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

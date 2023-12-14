@@ -382,7 +382,7 @@ int main(void)
 	lcdTask_Semaphore_Init();
   /* USER CODE END 2 */
 	MX_I2C1_Init();
-
+	
   /* USER CODE END SysInit */
 	//new end
 	Init_All_Parameter();
@@ -405,7 +405,6 @@ int main(void)
 	osDelay(20);	
 	Send_Text_SetButton(0,1);
 	osDelay(20);
-
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
 	 
 	//HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_SET); //网络灯
@@ -425,10 +424,8 @@ int main(void)
 		xTimerStart(xAutoReloadTimer, 0);
 	}
 
-	//-----------------------DMASPI发送测试-----------------------//
-	DAC8831_Set_Data(0x7fff);       //初始化一下
-	//-----------------------音乐测试-----------------------//
-//		Send_ComMusic(3);
+	//-----------------------DMASPI发送初始化-----------------------//
+	DAC8831_Set_Data(0x7fff);       
 //-----------------------rtos剩余容量的api初始剩余有44704---------------------------//	
 	
 	//wifi连接，连接MQTT 接收wifi传递过来的消息

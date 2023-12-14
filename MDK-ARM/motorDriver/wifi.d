@@ -1,6 +1,6 @@
 motordriver\wifi.o: ..\Src\WIFI\WiFi.c
 motordriver\wifi.o: ..\Src\WIFI\wifi.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\wifi.o: ..\Inc\Includes\common.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\wifi.o: ../Inc/stm32h7xx_hal_conf.h
@@ -9,7 +9,7 @@ motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h
 motordriver\wifi.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 motordriver\wifi.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h
 motordriver\wifi.o: ../Drivers/CMSIS/Include/core_cm7.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\wifi.o: ../Drivers/CMSIS/Include/cmsis_version.h
 motordriver\wifi.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 motordriver\wifi.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -17,8 +17,8 @@ motordriver\wifi.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\wifi.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -49,9 +49,9 @@ motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 motordriver\wifi.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\wifi.o: ..\Inc\Includes\parameter.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 motordriver\wifi.o: ../Inc/main.h
 motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
@@ -67,7 +67,7 @@ motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
 motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
 motordriver\wifi.o: ..\Inc\Includes\com.h
 motordriver\wifi.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\wifi.o: ..\Lwip_App\user_tcp_client.h
@@ -81,9 +81,9 @@ motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h
 motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h
 motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/system/arch/cc.h
 motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/system/arch/cpu.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
-motordriver\wifi.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+motordriver\wifi.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
 motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h
 motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/netif.h
 motordriver\wifi.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/ip_addr.h

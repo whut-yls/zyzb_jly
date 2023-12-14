@@ -1,7 +1,7 @@
 motordriver\lcdtask.o: ..\Src\App\lcdTask.c
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 motordriver\lcdtask.o: ../Inc/main.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\lcdtask.o: ../Inc/stm32h7xx_hal_conf.h
@@ -10,7 +10,7 @@ motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Include/core_cm7.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Include/cmsis_version.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -18,8 +18,8 @@ motordriver\lcdtask.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\lcdtask.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -50,7 +50,7 @@ motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 motordriver\lcdtask.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\lcdtask.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\lcdtask.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 motordriver\lcdtask.o: ../Inc/FreeRTOSConfig.h
@@ -65,7 +65,7 @@ motordriver\lcdtask.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers
 motordriver\lcdtask.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\lcdtask.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 motordriver\lcdtask.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-motordriver\lcdtask.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\lcdtask.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
 motordriver\lcdtask.o: ..\Inc\Includes\parameter.h
 motordriver\lcdtask.o: ..\Src\strings\StringTransform.h
 motordriver\lcdtask.o: ..\Inc\Includes\startLoopTask.h

@@ -1,8 +1,8 @@
 motordriver\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
-motordriver\stream_buffer.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-motordriver\stream_buffer.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\stream_buffer.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\stream_buffer.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-motordriver\stream_buffer.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\stream_buffer.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 motordriver\stream_buffer.o: ../Inc/FreeRTOSConfig.h
 motordriver\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 motordriver\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

@@ -7,7 +7,7 @@ motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h
 motordriver\main.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 motordriver\main.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h
 motordriver\main.o: ../Drivers/CMSIS/Include/core_cm7.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\main.o: ../Drivers/CMSIS/Include/cmsis_version.h
 motordriver\main.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 motordriver\main.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -15,8 +15,8 @@ motordriver\main.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\main.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -47,7 +47,7 @@ motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 motordriver\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 motordriver\main.o: ../Inc/FreeRTOSConfig.h
@@ -62,7 +62,7 @@ motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
 motordriver\main.o: ..\Inc\Includes\parameter.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\main.o: ../Inc/lwip.h
@@ -72,10 +72,10 @@ motordriver\main.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h
 motordriver\main.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h
 motordriver\main.o: ../Middlewares/Third_Party/LwIP/system/arch/cc.h
 motordriver\main.o: ../Middlewares/Third_Party/LwIP/system/arch/cpu.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
 motordriver\main.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h
 motordriver\main.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/mem.h
 motordriver\main.o: ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h
@@ -116,7 +116,7 @@ motordriver\main.o: ..\Lwip_App\user_tcp_com.h
 motordriver\main.o: ..\Lwip_App\user_tcp_client.h
 motordriver\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\main.o: ..\Inc\Includes\console.h
-motordriver\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\main.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\main.o: ..\Drivers\BSP\Components\mx25l256\stm32h743i_eval_qspi.h
 motordriver\main.o: ..\Inc\Includes\myAdc.h
 motordriver\main.o: ..\Inc\Includes\startLoopTask.h

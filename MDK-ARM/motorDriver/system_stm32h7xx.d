@@ -2,7 +2,7 @@ motordriver\system_stm32h7xx.o: ../Src/system_stm32h7xx.c
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Include/core_cm7.h
-motordriver\system_stm32h7xx.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\system_stm32h7xx.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Include/cmsis_version.h
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -14,8 +14,8 @@ motordriver\system_stm32h7xx.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ha
 motordriver\system_stm32h7xx.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h
 motordriver\system_stm32h7xx.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 motordriver\system_stm32h7xx.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\system_stm32h7xx.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\system_stm32h7xx.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\system_stm32h7xx.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\system_stm32h7xx.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\system_stm32h7xx.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\system_stm32h7xx.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\system_stm32h7xx.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h

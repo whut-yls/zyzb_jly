@@ -1,8 +1,8 @@
 motordriver\parameter.o: ..\Src\App\parameter.c
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\parameter.o: ..\Inc\Includes\parameter.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\parameter.o: ../Inc/stm32h7xx_hal_conf.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc.h
@@ -17,8 +17,8 @@ motordriver\parameter.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\parameter.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -50,8 +50,8 @@ motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_e
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 motordriver\parameter.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
 motordriver\parameter.o: ..\Inc\Includes\spiFlash.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 motordriver\parameter.o: ..\Inc\Includes\common.h
 motordriver\parameter.o: ../Inc/main.h
 motordriver\parameter.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
@@ -68,4 +68,4 @@ motordriver\parameter.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/time
 motordriver\parameter.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\parameter.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 motordriver\parameter.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-motordriver\parameter.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\parameter.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h

@@ -1,7 +1,7 @@
 motordriver\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
 motordriver\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-motordriver\croutine.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\croutine.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\croutine.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\croutine.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\croutine.o: ../Inc/FreeRTOSConfig.h
 motordriver\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 motordriver\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

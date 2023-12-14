@@ -168,122 +168,77 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>usPrescaler,0x0A</ItemText>
+          <ItemText>isCollect</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>uiTIMxCLK,0x0A</ItemText>
+          <ItemText>gADC3_VALUE[0],0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>usPeriod</ItemText>
+          <ItemText>reTime,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hi2c</ItemText>
+          <ItemText>gGlobalData.currentUnitNum,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>reload,0x0A</ItemText>
+          <ItemText>gGlobalData.Send_Data_Task</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>told,0x0A</ItemText>
+          <ItemText>gDeviceParam.qrbuf</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tnow,0x0A</ItemText>
+          <ItemText>gGlobalData.Auto_Level_Ctl</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tcnt,0x0A</ItemText>
+          <ItemText>gGlobalData.Alltime,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ticks,0x0A</ItemText>
+          <ItemText>gGlobalData.cur_heart_state</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ack</ItemText>
+          <ItemText>gGlobalData.curWorkState</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>isCollect</ItemText>
+          <ItemText>gDeviceParam,0x10</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>gADC3_VALUE[0],0x0A</ItemText>
+          <ItemText>Level,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>12</count>
           <WinNumber>1</WinNumber>
-          <ItemText>reTime,0x0A</ItemText>
+          <ItemText>\\motorDriver\../Src/main.c\ch1buf</ItemText>
         </Ww>
         <Ww>
           <count>13</count>
           <WinNumber>1</WinNumber>
-          <ItemText>gGlobalData.currentUnitNum,0x0A</ItemText>
+          <ItemText>ca</ItemText>
         </Ww>
         <Ww>
           <count>14</count>
           <WinNumber>1</WinNumber>
-          <ItemText>gGlobalData.Send_Data_Task</ItemText>
-        </Ww>
-        <Ww>
-          <count>15</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>gDeviceParam.qrbuf</ItemText>
-        </Ww>
-        <Ww>
-          <count>16</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>buf</ItemText>
-        </Ww>
-        <Ww>
-          <count>17</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dataLen,0x10</ItemText>
-        </Ww>
-        <Ww>
-          <count>18</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Msgbuf</ItemText>
-        </Ww>
-        <Ww>
-          <count>19</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>strBuf</ItemText>
-        </Ww>
-        <Ww>
-          <count>20</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>oldVal</ItemText>
-        </Ww>
-        <Ww>
-          <count>21</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>gGlobalData.Auto_Level_Ctl</ItemText>
-        </Ww>
-        <Ww>
-          <count>22</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>gGlobalData.useWorkArg[gGlobalData.current_treatNums].level</ItemText>
-        </Ww>
-        <Ww>
-          <count>23</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>gGlobalData.Alltime,0x0A</ItemText>
+          <ItemText>gDeviceParam.version</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

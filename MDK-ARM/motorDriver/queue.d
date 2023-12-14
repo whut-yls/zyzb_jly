@@ -1,9 +1,9 @@
 motordriver\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
-motordriver\queue.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-motordriver\queue.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\queue.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\queue.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-motordriver\queue.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\queue.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\queue.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\queue.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\queue.o: ../Inc/FreeRTOSConfig.h
 motordriver\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 motordriver\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

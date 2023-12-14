@@ -1,9 +1,9 @@
 motordriver\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
-motordriver\tasks.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-motordriver\tasks.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\tasks.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+motordriver\tasks.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-motordriver\tasks.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\tasks.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\tasks.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\tasks.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\tasks.o: ../Inc/FreeRTOSConfig.h
 motordriver\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 motordriver\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

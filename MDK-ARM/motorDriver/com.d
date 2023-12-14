@@ -1,7 +1,7 @@
 motordriver\com.o: ..\Src\App\com.c
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 motordriver\com.o: ../Inc/FreeRTOSConfig.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
@@ -27,7 +27,7 @@ motordriver\com.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 motordriver\com.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc_ex.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio_ex.h
@@ -58,13 +58,13 @@ motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 motordriver\com.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
 motordriver\com.o: ..\Inc\Includes\parameter.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 motordriver\com.o: ..\Inc\Includes\startDefaultTask.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\com.o: ..\Inc\Includes\common.h
@@ -77,5 +77,5 @@ motordriver\com.o: ..\Inc\Includes\AHT15.h
 motordriver\com.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 motordriver\com.o: ..\Inc\Includes\ad9833.h
 motordriver\com.o: ..\Inc\Includes\myAdc.h
-motordriver\com.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\com.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 motordriver\com.o: ..\Inc\Includes\pca9554.h

@@ -1,6 +1,6 @@
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTFormat.c
 motordriver\mqttformat.o: ..\Src\mqtt\StackTrace.h
-motordriver\mqttformat.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+motordriver\mqttformat.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTPacket.h
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTConnect.h
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTPublish.h
@@ -8,4 +8,4 @@ motordriver\mqttformat.o: ..\Src\mqtt\MQTTSubscribe.h
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTUnsubscribe.h
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTFormat.h
 motordriver\mqttformat.o: ..\Src\mqtt\MQTTPacket.h
-motordriver\mqttformat.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+motordriver\mqttformat.o: f:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

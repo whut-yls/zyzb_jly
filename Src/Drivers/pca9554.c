@@ -231,8 +231,7 @@ bool set_sampleMode(uint8_t mode)
         
 //			WriteOUT10(GPIO_PIN_SET);        //原理图没写的io口 3 4 10 11 12 14  2023/8/11 by yls
 //			WriteOUT11(GPIO_PIN_SET);
-//			WriteOUT12(GPIO_PIN_SET);
-        
+//			WriteOUT12(GPIO_PIN_SET);        
 //			WriteOUT13(GPIO_PIN_SET);           //这个改灯了      
 //			WriteOUT14(GPIO_PIN_SET);          //这个原理图也没有
 		
