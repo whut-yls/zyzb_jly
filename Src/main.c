@@ -363,8 +363,8 @@ int main(void)
   MX_ADC1_Init();
 	MX_ADC3_Init();
 //  MX_ETH_Init();
-  MX_I2C2_Init();         //屏蔽掉了原始i2c，新写了模拟i2c来控制，i2c有bug
-//  IIC_Init();           //2023/8/12 by yls 硬件i2c本身有缺陷不好用，用软件i2c模拟发送数据   8/16 update：还是用的硬件i2c 
+//  MX_I2C2_Init();         //屏蔽掉了原始i2c，新写了模拟i2c来控制，i2c有bug
+  IIC_Init();           //2023/8/12 by yls 硬件i2c本身有缺陷不好用，用软件i2c模拟发送数据   8/16 update：还是用的硬件i2c 
   MX_SPI5_Init();
 	MX_USART3_UART_Init();
   MX_UART4_Init();
@@ -2062,7 +2062,7 @@ void StartLoopTask(void const * argument)
   /* Infinite loop */
 	HAL_PCA9554_outputAll(0);
 	HAL_PCA9554_init();
-		
+//	Search_Device_Addr();	
 	startLoopTask(argument);
   /* USER CODE END StartLoopTask */
 }

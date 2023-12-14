@@ -13,14 +13,12 @@
 bool HAL_PCA9554_init(void)
 {
 	uint8_t send[2]={0x03,0x00};
-
 	for(int i=0;i<8;i++){
-
-//    Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
-    Set_I2c_Register_Clear_Reset();
-		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+(i*2),send,sizeof(send),0xFff)!=HAL_OK){
-			return false;
-		}
+    Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
+//    Set_I2c_Register_Clear_Reset();
+//		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+(i*2),send,sizeof(send),0xFff)!=HAL_OK){
+//			return false;
+//		}
 		osDelay(50);
 
 	}
@@ -33,14 +31,8 @@ bool HAL_PCA9554_readIn(uint8_t adr,uint8_t* data)
 {
 	uint8_t send[1]={0x01};
 	uint8_t oldVal=0;
-  Set_I2c_Register_Clear_Reset();
-	if(HAL_I2C_Master_Transmit(&hi2c2,adr,send,1,0xFff) == HAL_OK)
-	{
-    Set_I2c_Register_Clear_Reset();
-		if(HAL_I2C_Master_Receive(&hi2c2,adr,&oldVal,1,0xFFF) != HAL_OK)
-		{
-			return false;
-		}
+	oldVal = Device_Read_One_Byte(adr,send[0]);
+	if(oldVal != 0 ){
 		*data=oldVal;
 	}
 	else
@@ -48,6 +40,25 @@ bool HAL_PCA9554_readIn(uint8_t adr,uint8_t* data)
 		return false;
 	}
 	return true;
+
+	
+//	uint8_t send[1]={0x01};
+//	uint8_t oldVal=0;	
+//  Set_I2c_Register_Clear_Reset();
+//	if(HAL_I2C_Master_Transmit(&hi2c2,adr,send,1,0xFff) == HAL_OK)
+//	{
+//    Set_I2c_Register_Clear_Reset();
+//		if(HAL_I2C_Master_Receive(&hi2c2,adr,&oldVal,1,0xFFF) != HAL_OK)
+//		{
+//			return false;
+//		}
+//		*data=oldVal;
+//	}
+//	else
+//	{
+//		return false;
+//	}
+//	return true;
 }
 
 //设置所有通道的继电器状态
@@ -56,11 +67,11 @@ bool HAL_PCA9554_outputAll(uint8_t data)
 	uint8_t send[2]={0x01,data};
 
 	for(int i=0;i<8;i++){
-//        Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
-        Set_I2c_Register_Clear_Reset();
-		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+i*2,send,sizeof(send),0xFff)!=HAL_OK){
-		return false;
-		}
+		Device_Write_One_Byte(PCA554A_ADDR+(i*2),send[0],send[1]);
+//    Set_I2c_Register_Clear_Reset();
+//		if(HAL_I2C_Master_Transmit(&hi2c2,PCA554A_ADDR+i*2,send,sizeof(send),0xFff)!=HAL_OK){
+//			return false;
+//		}
 		osDelay(50);
 	}
 	return true;
@@ -176,28 +187,21 @@ bool set_channle_status(uint8_t channel,uint8_t dir,uint8_t status)
 			//某组的哪个引脚号
 			sNum=channel*2;	
 		}
-//        if(status==sOFF){            
-//            Device_Write_One_Byte(address,send[0],0);
-//            return true;
-//        }
-//        else
-//            oldVal=0;
-        
+//		Device_Write_One_Byte(address,0x03,0x00);            //每次使用前初始化一次
 		if(HAL_PCA9554_readIn(address,&oldVal)==true)
 		{
 		}else{
 			oldVal=0;
-		}
-        
+		}       
 		update_oldValue(sNum,dir,status,&oldVal);
 	}
 	//写操作
-	send[1]=oldVal;    
-//    Device_Write_One_Byte(address,send[0],send[1]);
-   Set_I2c_Register_Clear_Reset();
-	if(HAL_I2C_Master_Transmit(&hi2c2,address,send,sizeof(send),0xFff)!=HAL_OK){
-		return false;
-	}
+	send[1]=oldVal;
+  Device_Write_One_Byte(address,send[0],send[1]);
+//  Set_I2c_Register_Clear_Reset();
+//	if(HAL_I2C_Master_Transmit(&hi2c2,address,send,sizeof(send),0xFff)!=HAL_OK){
+//		return false;
+//	}
 	return true;
 
 }

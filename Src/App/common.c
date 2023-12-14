@@ -617,6 +617,7 @@ void do_work_ctl(uint8_t workMode)
       gGlobalData.Auto_Level_Ctl = 0;   
 			break;
 		case Lcd_Button_to_Reset:
+			
 //			Set_Input_Output(sOFF);
 			Send_Fix_Ack(100,STATUS_OK,"OK");//发送给上位机告诉执行了复位			
 			gGlobalData.cur_heart_state = LEISURE; 
@@ -627,7 +628,8 @@ void do_work_ctl(uint8_t workMode)
 			gGlobalData.current_treatNums=0;//2023.02.01
 			set_sampleMode(MODE_CLOSE);				
 			HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11
-			HAL_PCA9554_outputAll(0);      
+			HAL_PCA9554_outputAll(0);
+			HAL_PCA9554_init();
 			gGlobalData.channelPos=0;
       HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET); //运行红灯 set灭 reset亮
 			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET); //运行绿灯 set灭 reset亮

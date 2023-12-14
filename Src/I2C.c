@@ -8,9 +8,9 @@ void IIC_Init(void)
 	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;//SDA SCL WP
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD ; // 
 	GPIO_InitStruct.Pull= GPIO_NOPULL;//ÉÏÀ­
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct); //
-    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0 | GPIO_PIN_1, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0 | GPIO_PIN_1, GPIO_PIN_SET);
 }
 
 void IIC_SDA_IN(void)//SDAÓÃ×÷ÊäÈë£º´Ó»ú·µ»ØÊý¾Ý£¬´Ó»úÓ¦´ðµÈ
@@ -20,7 +20,7 @@ void IIC_SDA_IN(void)//SDAÓÃ×÷ÊäÈë£º´Ó»ú·µ»ØÊý¾Ý£¬´Ó»úÓ¦´ðµÈ
 	GPIO_InitStruct.Pin = GPIO_PIN_0;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT ; //
 	GPIO_InitStruct.Pull = GPIO_NOPULL;//ÉÏÀ­
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct); 	
 }
 
@@ -31,7 +31,7 @@ void IIC_SDA_OUT(void)//SDAÓÃ×÷Êä³ö£ºÐ´µØÖ·£¬Ð´Êý¾ÝµÈ
 	GPIO_InitStruct.Pin = GPIO_PIN_0;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD; //   
 	GPIO_InitStruct.Pull = GPIO_NOPULL;//ÉÏÀ­
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct); 	
 }
 
@@ -42,7 +42,7 @@ void IIC_Start(void)//¿ªÊ¼ÐÅºÅ
 	IIC_SDA(GPIO_PIN_SET); 
     
 	IIC_SCL(GPIO_PIN_SET);
-    delay_us(4);
+  delay_us(4);
 	IIC_SDA(GPIO_PIN_RESET); 
 	delay_us(4);
 	IIC_SCL(GPIO_PIN_RESET);
@@ -282,7 +282,7 @@ void Device_Page_Write(uint8_t IC_Addr,uint8_t Addr,uint8_t *buf,uint8_t len)//°
 
 //ÔÚ´Ëº¯ÊýÖÐ¼ÓÈë³õÊ¼»¯sysytick¶¨Ê±Æ÷²½Öè
 //²ÎÕÕÕýµãÔ­×ÓÀý³Ì½øÐÐÐÞ¸Ä
-void delay_us(uint32_t nus)
+void delay_us(uint32_t nus)    //us ³ËÒÔ10±¶
 {
 	 uint32_t ticks;
 	 uint32_t told,tnow,reload,tcnt=0;
@@ -290,7 +290,7 @@ void delay_us(uint32_t nus)
 		 vPortSetupTimerInterrupt();  //³õÊ¼»¯¶¨Ê±Æ÷
 
 	 reload = SysTick->LOAD;                     //»ñÈ¡ÖØ×°ÔØ¼Ä´æÆ÷Öµ
-	 ticks = nus * (SystemCoreClock / 1000000);  //¼ÆÊýÊ±¼äÖµ
+	 ticks = nus * (SystemCoreClock / 1000000)* 10;  //¼ÆÊýÊ±¼äÖµ by yls 2023/12/13³ËÒÔÊ® 
 	 told=SysTick->VAL;                          //»ñÈ¡µ±Ç°ÊýÖµ¼Ä´æÆ÷Öµ£¨¿ªÊ¼Ê±ÊýÖµ£© 
 	 while(1)
 	 {
