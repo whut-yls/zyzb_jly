@@ -18,6 +18,8 @@
 #include "Wt2003hx.h"
 #include "timer.h"
 #include "dac8831.h"
+
+#define PI acos(-1)
 /**
 xSemaphoreTake(xSemaphore, portMAX_DELAY);//pdTRUE/pdFALSE(timeout)
 xSemaphoreGive(xSemaphore);	
@@ -664,9 +666,10 @@ void do_work_ctl(uint8_t workMode)
 			isCollect=false;//2023.03.31 ZKM
 			gGlobalData.Auto_Level_Ctl = 0;
 			HAL_TIM_Base_DeInit(&htim12);  //不产生波形
+			HAL_TIM_Base_DeInit(&htim1);  //不产生波形
 			break;
 		case Lcd_Button_to_Level_Up:
-			if(Level <=60){		
+			if(Level <60){		
 				Level += 1;		
 				Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);//波形选择
 				Dac8831_Set_Amp(Level, ch1buf);//幅值改变
@@ -676,6 +679,8 @@ void do_work_ctl(uint8_t workMode)
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
 				Send_LcdVoltage(5.84f*Level);	
+				if(gGlobalData.current_time == 0)
+					RecRmsl_old = Gets_Rmsl_update(RecRmsl);               //获取最新反馈值
 			} 			
 			break;
 		case Lcd_Button_to_Level_Down:
@@ -689,6 +694,8 @@ void do_work_ctl(uint8_t workMode)
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
 				osDelay(100);
 				Send_LcdVoltage(5.84f*Level);
+				if(gGlobalData.current_time == 0)
+					RecRmsl_old = Gets_Rmsl_update(RecRmsl);
 			}  			
 			break;
 		default: 
@@ -722,6 +729,55 @@ uint16_t Gets_Average(uint16_t *pt,int l)
 		return (uint16_t)((sum-max-min)/(nums-2));
 }
 
+uint16_t Gets_Maximum(uint16_t *pt,int l)
+{
+	//uint16_t *p = pt;
+	uint16_t nums = 0;
+	uint32_t sum = 0;
+	uint32_t max=0;
+	uint32_t min=999999999;
+//	uint16_t buf_temp[l];
+//	memcpy(buf_temp, pt, l);
+	for(int i = 0; i < l; ++i)
+	{
+		if(pt[i] != 0)
+		{
+			if((uint32_t)(pt[i])>max)max=(uint32_t)(pt[i]);
+			if((uint32_t)(pt[i])<min)min=(uint32_t)(pt[i]);
+			sum = sum + (uint32_t)(pt[i]);
+			nums++;
+		}
+		
+	}
+	if(nums == 0) return 0;
+	else
+//		return (uint16_t)((sum-max-min)/(nums-2));
+		return max;
+}
+
+uint16_t Gets_Rmsl(uint16_t *pt,int l)
+{
+	int16_t Rec_RmsTemp = 0;
+	static uint32_t value = 0, sum = 0;
+	static uint16_t rms = 0;
+	int32_t max=-999999,min=99999;
+	
+	for(uint16_t i = 0 ; i < l ;i++){
+		Rec_RmsTemp = *(pt+i)*3300/65535-330;
+		if((Rec_RmsTemp)>max)max=Rec_RmsTemp;
+		if((Rec_RmsTemp)<min)min=Rec_RmsTemp;	
+		value = Rec_RmsTemp * Rec_RmsTemp;
+		sum += value;
+	}	
+	sum = sum - max*max - min*min;
+		
+	rms = (uint16_t)sqrt(sum/(l-2));
+	sum=0;
+	return rms-5;
+}
+uint16_t Gets_Rmsl_update(uint16_t data){
+	return data;
+}
 //hyadd
 void general_heartBag(int fun, int status, int netKind, int workState, int timeLast)
 {

@@ -42,8 +42,7 @@ extern uint16_t gADC3_VALUE_F[AD3_NUM];
 
 
 /**interface function**/	 
-void MX_ADC1_Init(void);
-void MX_ADC3_Init(void);
+
 /**public function**/	 
 bool Get_ADC1(float * buff);
 

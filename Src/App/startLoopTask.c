@@ -96,7 +96,11 @@ while(1)
 			
 			}
 
-		}
+		}		
+		if(gGlobalData.current_time == 1){			
+			do_work_ctl(Lcd_Button_to_Level_Down);
+			gGlobalData.current_time = 0;
+		}		
 #if 0
 		/*温度湿度采集*/
 		if(SensorCnt1==0||SensorCnt1>=10)	//3s

@@ -4,6 +4,9 @@
 #include "user_tcp_com.h"
 #include "stdbool.h"
 #include "cmsis_os.h"
+
+int netData_process(char *payload,int payloadLen);
+
 extern struct netconn*  gNetSock[NET_SOCK_NUM];
 extern unsigned char gNetSockStatus[NET_SOCK_NUM];
 extern char gSendNetData[RECV_BUF_MAX-1];

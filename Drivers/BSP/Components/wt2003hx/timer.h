@@ -32,13 +32,14 @@ extern "C" {
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim12;
-
+extern TIM_HandleTypeDef htim1;
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
 void MX_TIM12_Init(uint32_t _ulFreq);
 
+void MX_TIM1_Init(uint32_t _ulFreq);
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */

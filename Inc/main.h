@@ -168,7 +168,7 @@ extern float Level;//档位强度控制变量
 
 /* USER CODE BEGIN Private defines */
 void MX_GPIO_Init(void);
-void MX_ADC1_Init(void);
+void MX_ADC1_Init(uint32_t _ulFreq);
 void MX_ADC3_Init(void);
 void MX_ETH_Init(void);
 void MX_I2C2_Init(void);
@@ -279,6 +279,8 @@ extern bool gUartPcInit,gUartPcTc;
 extern bool gUartLcdInit,gUartLcdTc;
 extern bool isCollect;
 extern bool Collect_Data_state;
+extern uint16_t RecRmsl;  //ADC1采样治疗反馈
+extern uint16_t RecRmsl_old;  //ADC1采样治疗反馈
 extern osThreadId ethernetTaskTaskHandle;
 #define W25QX_nCS(x)  HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,x ? GPIO_PIN_SET : GPIO_PIN_RESET) 
 /* USER CODE BEGIN Private defines */

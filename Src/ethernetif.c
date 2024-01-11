@@ -789,7 +789,7 @@ void ethernet_link_thread(void const * argument)
 //		{
 //			EthStatusOld=gEthStatus;
 ////			gSendEthChange=true;
-//			gRecvEthChange=true;  //debug
+//			gRecvEthChange=true;  
 //		}
 		osDelay(10);
 	}
@@ -852,7 +852,6 @@ void ethernet_link_thread(void const * argument)
 //  netif_set_up(netif);
 //  netif_set_link_up(netif);
 #endif //hgz
-  osDelay(100);
 
 
 /* USER CODE BEGIN ETH link code for User BSP */ 

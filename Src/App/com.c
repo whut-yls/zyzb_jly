@@ -39,7 +39,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_Wifi( uint8_t *pData, uint16_t Size, uint32_
 	 }
 	 gUartPcTc=true;
 
-//   HAL_UART_Transmit(&huart3, pData, Size, Timeout); //debug
+//   HAL_UART_Transmit(&huart3, pData, Size, Timeout); //
  	 HAL_UART_Transmit_DMA(&huart3, pData, Size); //debug
 	 gUartPcTc=false;
      
@@ -53,7 +53,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_Pc( uint8_t *pData, uint16_t Size, uint32_t 
 		return HAL_OK;
 	 }
 	 gUartPcTc=true;
-   HAL_UART_Transmit(&huart7, pData, Size, Timeout); //debug
+   HAL_UART_Transmit(&huart7, pData, Size, Timeout); //
 	 gUartPcTc=false;
 	return HAL_OK;
 }
@@ -65,7 +65,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_Lcd( uint8_t *pData, uint16_t Size,uint32_t 
 		return HAL_OK;
 	 }
 	 gUartLcdTc=true;
-   HAL_UART_Transmit(&huart7, pData, Size, Timeout);   //debug
+   HAL_UART_Transmit(&huart7, pData, Size, Timeout);   //
 	 gUartLcdTc=false;
 	return HAL_OK;
 }

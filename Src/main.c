@@ -48,6 +48,7 @@
 #include "timer.h"
 #include "dac8831.h"
 #include "I2C.h"//里面包含iic.h
+//#include "adczl.h"
 
 SemaphoreHandle_t					ConsoleReceive_Semaphore=NULL; 
 SemaphoreHandle_t  	lcdSemaphore = NULL;
@@ -68,8 +69,6 @@ bool gUartLcdInit=false,gUartLcdTc=false;
 bool isCollect=false;//是否开始采集数据
 uint32_t 	collectDataCount;//采集数据个数
 static int reTime=0;//采集时间间隔，单位ms	
-	//////////////////////////////////////////////////////////////////////////////////////
-bool yd_4gfalg;
 uint32_t countTime = 0;//计数器，用于倒计时计算 2023.02.06 kardos
 /* USER CODE END PTD */
 
@@ -148,9 +147,11 @@ DMA_HandleTypeDef hdma_spi3_tx;
 /* USER CODE BEGIN PV */
 uint16_t gREFVOL_VAL=3300;  //3300
 //int16_t gAdcVol[33];
-uint16_t gADC1_DMA_BUF[AD1_NUM*N_NUM];
+uint16_t gADC1_DMA_BUF[AD1_NUM*N_NUM];  
 uint16_t gADC1_VALUE[AD1_NUM];
 uint16_t gADC1_VALUE_F[AD1_NUM];
+
+uint16_t gADC1_BUF[400];
 
 uint16_t gADC3_DMA_BUF[AD3_NUM*N_NUM];
 uint16_t gADC3_VALUE[AD3_NUM];
@@ -203,8 +204,11 @@ static int count1 = 0;
 static int cnt_down = 0;
 static int Resetcnt = 0;
 
-float Level=0.0;//档位强度控制变量
-//int debug_a = 0;
+volatile uint16_t RecMAX;
+uint16_t RecRmsl;  //ADC1
+uint16_t RecRmsl_old = 0;  //ADC1采样治疗反馈
+uint16_t ADC1_ZL_Feedback = 0;
+float Level=0;//档位强度控制变量
 //软件定时器回调函数
 static void vAutoLoadTimerFunc( TimerHandle_t xTimer )
 {
@@ -232,15 +236,27 @@ static void vAutoLoadTimerFunc( TimerHandle_t xTimer )
 	if(count1 == 1000)
 		count1 = 0;
 	//治疗计时
-	if(cnt_down == 1000 && gGlobalData.curWorkMode == WORK_MODE_ZL && gGlobalData.curWorkState == WORK_START)//一秒进来一次
+	if(gGlobalData.curWorkMode == WORK_MODE_ZL && gGlobalData.curWorkState == WORK_START)//一秒进来一次
 	{
-		if((gGlobalData.Alltime != 0 && gGlobalData.curWorkState == WORK_START))
-		{
-			gGlobalData.Alltime = gGlobalData.Alltime - 1;	
+//		if((RecRmsl - RecRmsl_old) > 5){
+//			ADC1_ZL_Feedback ++;
+//		}
+//		if(ADC1_ZL_Feedback >= 500){
+//			ADC1_ZL_Feedback = 0;
+//			gGlobalData.current_time = 1;
+//		}
+		if(cnt_down == 1000 ){
+			if((gGlobalData.Alltime != 0 && gGlobalData.curWorkState == WORK_START))
+			{
+				gGlobalData.Alltime = gGlobalData.Alltime - 1;	
+			}
+			cnt_down = 0;
+			ADC1_ZL_Feedback = 0;
 		}
-		cnt_down = 0;
 	}
-
+	if(cnt_down == 1000)
+		cnt_down = 0;	
+	
 		//处理心跳包   2023.04.07 
 	if(cnt_heartbag > gDeviceParam.heartRate *1000)//到时间 且当前网络状态处于正常情况下才发心跳包
 	{
@@ -271,13 +287,12 @@ static void vAutoLoadTimerFunc( TimerHandle_t xTimer )
 		 gGlobalData.heart_count = 0;//超时计数器置为0 重新开始计数
 	}
 	
-	if(cnt_down == 1000)
-		cnt_down = 0;
+
 	
 	/////////////////////2023.03.24 kardos 新增数据采集//////////////
 		if(gGlobalData.curWorkState == WORK_START && gGlobalData.curWorkMode==WORK_MODE_ZT && isCollect==true && gGlobalData.isConnect == 1)
 		{
-			HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
+			
 			 if(gGlobalData.currentUnitNum>=gGlobalData.unitLen)
 			 {
 				 gGlobalData.currentUnitNum=0;
@@ -360,7 +375,7 @@ int main(void)
 	/* Initialize all configured peripherals */ 
   MX_GPIO_Init();
 
-  MX_ADC1_Init();
+//  MX_ADC1_Init();
 	MX_ADC3_Init();
 //  MX_ETH_Init();
 //  MX_I2C2_Init();         //屏蔽掉了原始i2c，新写了模拟i2c来控制，i2c有bug
@@ -701,7 +716,7 @@ void MPU_Config(void)
   * @param None
   * @retval None
   */
-static void MX_ADC1_Init(void)
+void MX_ADC1_Init(uint32_t _ulFreq)
 {
 
   /* USER CODE BEGIN ADC1_Init 0 */
@@ -717,17 +732,17 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV64;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV12;   // 240M/12=20M  240M/64=3.75M
   hadc1.Init.Resolution = ADC_RESOLUTION_16B;
-  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;//ADC_SCAN_DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;//ADC_EOC_SINGLE_CONV;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;//ADC_SCAN_DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;//ADC_EOC_SEQ_CONV;  
   hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;   //ENABLE
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_ONESHOT;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_CC1;   // ADC_SOFTWARE_START
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING; //ADC_EXTERNALTRIGCONVEDGE_NONE
+  hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;  //ADC_CONVERSIONDATA_DMA_ONESHOT
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
   hadc1.Init.OversamplingMode = DISABLE;
@@ -742,11 +757,17 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+	
+	/* 校准ADC，采用偏移校准 */
+	if (HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED) != HAL_OK)   //ADD
+	{
+		Error_Handler();
+	}	
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES_5 ;
+  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5 ;   //ADC_SAMPLETIME_16CYCLES_5
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -756,7 +777,14 @@ static void MX_ADC1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-
+	/* ## - 5 - 配置ADC的定时器触发 ####################################### */
+	MX_TIM1_Init(_ulFreq);
+  
+	/* ## - 6 - 启动ADC的DMA方式传输 ####################################### */
+	if (HAL_ADC_Start_DMA(&hadc1,(uint32_t *)gADC1_BUF,400) != HAL_OK)
+	{
+		Error_Handler();
+	}
   /* USER CODE END ADC1_Init 2 */
 
 }
@@ -1786,13 +1814,13 @@ void StartDefaultTask(void const * argument)
   uint8_t gbk0[8]={0,};
 	uint8_t gbkNum0[13]={0,};
 	
-	int16_t collectTime=0,unitTime=0,CountDown_Time = 0;
+	int16_t collectTime=0,CountDown_Time = 0;
 	/*adc 校准**/
-	if(HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED)!=HAL_OK)	//阻塞方式
-	{
-		Error_Handler();
-	}
-	
+//	if(HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED)!=HAL_OK)	//阻塞方式
+//	{
+//		Error_Handler();
+//	}
+//	
 	if(HAL_ADCEx_Calibration_Start(&hadc3, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED)!=HAL_OK)
 	{
 		Error_Handler();
@@ -1801,7 +1829,7 @@ void StartDefaultTask(void const * argument)
 	osDelay(10);	//可以删掉  vTaskDelay()
 	
 	/*开始dma接收adc，dma满产生中断*/
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
+//	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM); 					
 	HAL_ADC_Start_DMA(&hadc3, (uint32_t *)gADC3_DMA_BUF,N_NUM* AD3_NUM);
 	
 	/*获取内部参考电压*/
@@ -1819,7 +1847,7 @@ void StartDefaultTask(void const * argument)
 		if(collectTime>=1)	//每10ms更新一次
 		{			
 			collectTime=0;
-			HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
+//			HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
 			HAL_ADC_Start_DMA(&hadc3, (uint32_t *)gADC3_DMA_BUF,N_NUM* AD3_NUM);//直流采样
 		}
 		if(gDeviceParam.devLock==true)
@@ -1839,7 +1867,7 @@ void StartDefaultTask(void const * argument)
 				{
 					case WORK_MODE_WT:
 						channelTime=0;
-						unitTime=0;
+						
 						set_sampleMode(MODE_CLOSE);
 //						HAL_PCA9554_outputAll(0);
 						break;
@@ -1855,7 +1883,7 @@ void StartDefaultTask(void const * argument)
 							gGlobalData.freqUnitTime=1;
 						}
 						channelTime=0;
-						unitTime=0;
+						
 						//继电器设置为采样模式
 						set_sampleMode(MODE_ZT);  
 						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);    //中转板切到采集  by yls 2023 6/7 新板子上是PG11                       
@@ -1868,7 +1896,7 @@ void StartDefaultTask(void const * argument)
 						break;
 					case WORK_MODE_ZL:
 						CountDown_Time = gGlobalData.Alltime;
-						unitTime=0;						
+											
 						//治疗模式
 						set_sampleMode(MODE_ZL);
 						osDelay(500);
@@ -1879,6 +1907,7 @@ void StartDefaultTask(void const * argument)
 									gGlobalData.useWorkArg[0].level,
 								 (gGlobalData.useWorkArg[0].timeTreat)/60);	 													                  //这一句是发送jly下发治疗方案给屏幕
 						osDelay(100);
+						MX_ADC1_Init(2400-1);                                                            									//开启adc1反馈采样
 						Send_LcdVoltage(5.84*gGlobalData.useWorkArg[0].level);	
 						osDelay(100);
 						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗	                   
@@ -1888,6 +1917,8 @@ void StartDefaultTask(void const * argument)
 						send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中
 						osDelay(100);
 						send_LcdOutStatus(1);
+						
+						RecRmsl_old = Gets_Rmsl_update(RecRmsl);
 						break;
 					default:
 						break;
@@ -1913,12 +1944,10 @@ void StartDefaultTask(void const * argument)
 										isCollect=false;
 										set_sampleMode(MODE_CLOSE);
 										HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);//切到治疗
-										yd_4gfalg=false ;
 										if(gGlobalData.netKind!=1)
 											osDelay(1000);          //wifi 4g延时1s后才采集结束，不然可能上传数据报错收不到治疗方案
 										gGlobalData.channelPos = 0;
 										HAL_PCA9554_outputAll(0);//先关闭所有继电器
-										yd_4gfalg=true ;
 										gGlobalData.curWorkMode =WORK_MODE_WT;
 										gGlobalData.oldWorkMode=gGlobalData.curWorkMode;
 										taskENTER_CRITICAL();
@@ -1934,7 +1963,7 @@ void StartDefaultTask(void const * argument)
 										/*切换为下一通道*/
 										//输出打开  //输入打开                                       
                     Set_Input_Output(sON);       //采集                                        
-										unitTime=0;
+										
 										osDelay(10);//通道切换后做一个延时 让数据稳定后再采集
 										Collect_Data_state = true;
 										isCollect=true;
@@ -1977,6 +2006,7 @@ void StartDefaultTask(void const * argument)
 										Wave_select(gGlobalData.useWorkArg[gGlobalData.current_treatNums].waveTreat, ch1buf);		//波形选择
 										Dac8831_Set_Amp(0, ch1buf);																															//幅值直接给成0
 										HAL_TIM_Base_DeInit(&htim12);  																												  //不产生波形
+										HAL_TIM_Base_DeInit(&htim1);
 										osDelay(200);		
 										send_LcdWorkStatus(6);//kardos 2023.02.03 修改设备工作状态为：                                              经络理疗完成
 										gGlobalData.curWorkMode=WORK_MODE_WT;
@@ -2012,7 +2042,6 @@ void StartDefaultTask(void const * argument)
 										gGlobalData.current_treatNums=0;
 										gGlobalData.channelPos=0;
 										osDelay(100);
-										send_LcdWorkStatus(1);																																	//kardos 2023.02.03 修改设备工作状态为：设备待机状态
 										countTime=0;																																						//归零
 										gGlobalData.Auto_Level_Ctl = 0;
 									}else{
@@ -2071,8 +2100,6 @@ uint8_t DEVVID[25];
 
 void Console_Task(void const * pvParameters)
 {
-	uint8_t gbk0[8]={0,};
-	uint8_t gbkNum0[13]={0,};
 		HAL_UART_Receive_DMA(&huart7, RecSen,30);
 	__HAL_UART_CLEAR_IDLEFLAG(&huart7);
 	__HAL_UART_ENABLE_IT(&huart7, UART_IT_IDLE);
@@ -2117,7 +2144,7 @@ void Console_Task(void const * pvParameters)
 								break;
 						buf1[i-7] = RecSen[i];
 						}
-						char *token = strtok(buf1, ".");
+						char *token = strtok((char*)buf1, ".");
 						int i=0;
 						while (token != NULL && i < 4) 
 						{
@@ -2138,7 +2165,7 @@ void Console_Task(void const * pvParameters)
 								break;
 							buf2[i-7] = RecSen[i];
 						}
-							gDeviceParam.mqArg.mqttPort=atoi(buf2);				
+							gDeviceParam.mqArg.mqttPort=atoi((const char*)buf2);				
 					}			
 					else if(RecSen[4] == 0x18 && RecSen[5] == 0x60)
 					{
@@ -2233,22 +2260,32 @@ void Console_Task(void const * pvParameters)
 
 bool Get_ADC1_Hex(void)	
 {
-	//static uint16_t pt[AD1_NUM*10];
-	int i,j ;
-	uint16_t temp[N_NUM];	//连续采样次数
-	//if(Read_All_AD1(pt,AD1_NUM*10) == false) return false;	//DMA一直采集
-	
-	for(i=0;i<AD1_NUM;i++)
-	{
-		for(j=0;j<N_NUM;j++) {temp[j] =  gADC1_DMA_BUF[j*AD1_NUM+i];} //取出每一次的值
-		gGlobalData.currentNet=Gets_Average(temp,N_NUM);	
-		*(gADC1_VALUE+i) = Gets_Average(temp,N_NUM);	//计算平均值
-		*(gADC1_VALUE_F+i) = ((*(gADC1_VALUE+i))*gREFVOL_VAL)/65535;   //gREFVOL_VAL
-	}
+	RecRmsl=Gets_Rmsl(gADC1_BUF,400);
 	return true;
+//	//static uint16_t pt[AD1_NUM*10];
+//	int i,j ;
+
+//	uint16_t temp_adc1[N_NUM];	//连续采样次数
+//	//if(Read_All_AD1(pt,AD1_NUM*10) == false) return false;	//DMA一直采集
+//	
+//	for(i=0;i<AD1_NUM;i++) 
+//	{
+//		for(j=0;j<N_NUM;j++)
+//		{
+//			temp_adc1[j] =  gADC1_DMA_BUF[j*AD1_NUM+i]; 				//取出每一次的值
+//		}
+//		if(gGlobalData.curWorkMode == WORK_MODE_ZL)
+//			RecRmsl=Gets_Rmsl(temp_adc1,N_NUM);
+//		RecMAX=(Gets_Maximum(temp_adc1,N_NUM)*gREFVOL_VAL)/65535;
+//		gGlobalData.currentNet=Gets_Average(temp_adc1,N_NUM);	
+//		*(gADC1_VALUE+i) = Gets_Average(temp_adc1,N_NUM);	//计算平均值
+//		*(gADC1_VALUE_F+i) = ((*(gADC1_VALUE+i))*gREFVOL_VAL)/65535;   //gREFVOL_VAL
+//	}
+//	return true;
 }
 
 /*out*/
+//volatile double  adc3temp = 0;
 bool Get_ADC3_Hex(void)
 {
 	//static uint16_t pt[AD1_NUM*10];
@@ -2261,8 +2298,8 @@ bool Get_ADC3_Hex(void)
 		for(j=0;j<N_NUM;j++) {temp[j] =  gADC3_DMA_BUF[j*AD3_NUM+i];} 
 		
 		*(gADC3_VALUE+i) = Gets_Average(temp,N_NUM);
-		//*(gADC3_VALUE_F+i) = ((*(gADC3_VALUE+i))*gREFVOL_VAL)/65535;
-		
+		//*(gADC3_VALUE_F+i) = ((*(gADC3_VALUE+i))*gREFVOL_VAL)/65535;          //采样电压值
+//		adc3temp = 7800/( ((*(gADC3_VALUE+i))*3.3)/65535) - 2380;							//算人体电阻  20k电阻测量出来 10k
 	}
 	return true;
 }

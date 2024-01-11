@@ -23,13 +23,6 @@ unsigned char gNetSockStatus[NET_SOCK_NUM];
 //char gSendNetData[RECV_BUF_MAX-1];
 //static unsigned char gRecvCheckData[100];
 
-
-int netData_process(char *payload,int payloadLen);
-
-
-
-
-
 /**定义的信号量用来检测发送事件**/
 SemaphoreHandle_t					TcpSend_Semaphore; 
 SemaphoreHandle_t					COM1_Semaphore; 	//信号处理板通信uart1
@@ -363,15 +356,10 @@ void transport_deconnect(int netId)
 void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 {
 	int rc;
-
-	unsigned char addr[4]={0,};
-	int ret;	//char ret 无法表示-1=0xff
-	int len;
 	unsigned char buf[60]={0,};
 	
 	MQTTMessage messageSend;
-	MQTTMessage messageRecv;
-	
+	MQTTMessage messageRecv;	
 	MQTTString	messageTopic;
 	//主题初始化
 	sprintf((char*)buf,"%d",gDeviceParam.devId);
@@ -384,8 +372,6 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 	{
 		MQTTDisConnect(&MQTTPacket_ConnectData_Initializer);
 		gEthRecvStatus=false;	
-
-
 	}else{
 		gEthRecvStatus=true;
 	}
@@ -402,8 +388,7 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 	messageRecv.qos = QOS2;
 	messageRecv.retained = 0;
 	messageRecv.payload =NULL;//gRecvNetData;
-	
-	
+		
 	//消息订阅
 	if(gEthRecvStatus==true)
 	{
@@ -416,81 +401,65 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 		}
 		cnt_heartbag = 0;											  	//发送心跳清空心跳计数器		
 		gGlobalData.heartbag_flage=1;			         //连接上服务器立马发送心跳并接收解析
-
-	}
-		
+	}		
 	while(1)
 	{
-			osDelay(1);	
-
-			if(gEthRecvStatus==false)
+		osDelay(1);	
+		if(gEthRecvStatus==false)
+		{
+			MQTTDisConnect(&MQTTPacket_ConnectData_Initializer);
+			if(MQTTConnect(&MQTTPacket_ConnectData_Initializer)<0)
 			{
-				MQTTDisConnect(&MQTTPacket_ConnectData_Initializer);
-				if(MQTTConnect(&MQTTPacket_ConnectData_Initializer)<0)
-				{
-					gEthRecvStatus=false;
-					if(gGlobalData.rj45Status ==true && gGlobalData.conFlage==1){
-							osDelay(500);
-							send_NetSync(0);		
-							osDelay (100);
-							send_duan_wang(1);   
-					
-					}
-					continue;
-				}else{
-					gEthRecvStatus=true;              																					
-					wifi_deinit();   																				 //强制断开wifi		 	//wifi下线
-
-					HAL_UART_Transmit_DMA(&huart6,"AT+QMTCLOSE=0\r\n",sizeof("AT+QMTCLOSE=0\r\n"));				  //4g下线
-					gGlobalData.yd4gStatus=false;
-                  
-					gGlobalData.isConnect=1;																																//网络正常
-					gGlobalData.conFlage=1;
-					gGlobalData.netKind = 1;																																//网线
-					mqtt_topic_sub(&gTopicInfo,&messageRecv,&messageSend);
-																																		//去掉断网提示 1900  //**//
-					if(gGlobalData.ResetStatus==true)
-					{
-						gGlobalData.ResetStatus=false;
-						do_work_ctl(3);
-						send_QRInfo(gDeviceParam.qrbuf,strlen((const char *)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
-					}
-					send_NetSync(1);  																																		  //网络灯 1601  //**//
-					osDelay (100);
-					send_duan_wang(0);
-					cnt_heartbag = 0;																																			 //发送心跳清空心跳计数器
-					gGlobalData.heartbag_flage=1;			      																						   //连接上服务器立马发送心跳并接收解析				
-				}
-			}
-				
-			//接收消息测试		
-			rc=MQTTSubscribe_RecvMessage(&messageRecv,&messageTopic);
-//		printf("rc=%d\r\n",rc);
-		
-
-			if(rc==MQ_SUCCESS)	//MQ_SUCCSS 
-			{
-//			printf("Subscribe_RecvMessage Success\n");
-				//消息处理
-				if(messageRecv.payloadlen>0)
-				{
-
-//					gGlobalData.count_net_state = true;
-					mqttMessageProcess(messageRecv.payload,messageRecv.payloadlen,messageTopic.lenstring.data,messageTopic.lenstring.len);
-
-				}
-			}else if(rc==MQ_PINGRESP){
-				gGlobalData.heart_count = 0;                
-			}else{
-//			gMqttLinkStatus=false;
-				osDelay(5000);       
 				gEthRecvStatus=false;
+				if(gGlobalData.rj45Status ==true && gGlobalData.conFlage==1){
+						osDelay(500);
+						send_NetSync(0);		
+						osDelay (100);
+						send_duan_wang(1);   				
+				}
+				continue;
+			}else{
+				gEthRecvStatus=true;              																					
+				wifi_deinit();   																				 //强制断开wifi		 	//wifi下线
+				HAL_UART_Transmit_DMA(&huart6,"AT+QMTCLOSE=0\r\n",sizeof("AT+QMTCLOSE=0\r\n"));				  //4g下线
+				gGlobalData.yd4gStatus=false;								
+				gGlobalData.isConnect=1;																																//网络正常
+				gGlobalData.conFlage=1;
+				gGlobalData.netKind = 1;																																//网线
+				mqtt_topic_sub(&gTopicInfo,&messageRecv,&messageSend);																																	//去掉断网提示 1900  //**//
+				if(gGlobalData.ResetStatus==true)
+				{
+					gGlobalData.ResetStatus=false;
+					do_work_ctl(3);
+					send_QRInfo(gDeviceParam.qrbuf,strlen((const char *)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+				}
+				send_NetSync(1);  																																		  //网络灯 1601  //**//
+				osDelay (100);
+				send_duan_wang(0);
+				cnt_heartbag = 0;																																			 //发送心跳清空心跳计数器
+				gGlobalData.heartbag_flage=1;			      																						   //连接上服务器立马发送心跳并接收解析				
 			}
-			
-			
-		} 
-	 
+		}				
+		//接收消息测试		
+		rc=MQTTSubscribe_RecvMessage(&messageRecv,&messageTopic);
+		if(rc==MQ_SUCCESS)	//MQ_SUCCSS 
+		{
+//			printf("Subscribe_RecvMessage Success\n");
+			//消息处理
+			if(messageRecv.payloadlen>0)
+			{
+				mqttMessageProcess(messageRecv.payload,messageRecv.payloadlen,messageTopic.lenstring.data,messageTopic.lenstring.len);
+			}
+		}else if(rc==MQ_PINGRESP){
+			gGlobalData.heart_count = 0;                
+		}else{
+//			gMqttLinkStatus=false;
+			osDelay(5000);       
+			gEthRecvStatus=false;
+		}				
+	} 	 
 }
+
 bool Act_music=false;
 /*数据处理*/
 int netData_process(char *payload,int payloadLen)
@@ -500,13 +469,11 @@ int netData_process(char *payload,int payloadLen)
 	char strBuf[200]={0,};
 	long reet;
 	char *pend;
-	
-	
+		
 	uint8_t intIp[4]={0,},intMask[4]={0,},intGate[4]={0,},intMac[12]={0,};
 	bool ipTrue=false,maskTrue=false,gateTrue=false,macTrue=false;
-	int tCollectFreq,tCollectUptime;
 	int tDataStartFlag,tDataStartFlag2;
-	int  functionFlag,directionFlag,valueFlag,unityFlag,motorFlag,motorMode;
+	int  functionFlag,valueFlag;
 	cJSON *root = NULL, *item = NULL,*itemSub=NULL;
 	cJSON *cjsonArr=NULL,*cjsonArr2=NULL,*arryItem=NULL;
 	/*接收解析 到有会话id和功能就回复*/
@@ -519,9 +486,9 @@ int netData_process(char *payload,int payloadLen)
 	root=cJSON_Parse(payload);
 	if (root == NULL || !cJSON_IsObject(root)) {
 		Send_Fix_Ack(0,STATUS_FAIL,"json body fail");	//tmp
-			cJSON_Delete(root);
-			return -1;
-    }
+		cJSON_Delete(root);
+		return -1;
+	}
 	#if 2//解析协议头
 	cnt_heartbag = 0;                               //通信上就不立马发送心跳
 	/*取设备id*/
@@ -545,7 +512,7 @@ int netData_process(char *payload,int payloadLen)
 		Send_Fix_Ack(0,STATUS_FAIL,"key-fun fail");
 		return -1;
 	}
-	functionFlag=item->valueint;   //debug
+	functionFlag=item->valueint;   
 	
 	
 	/*取会话id字段*/
@@ -562,15 +529,15 @@ int netData_process(char *payload,int payloadLen)
 	
 		//取时间
 
-		item=cJSON_GetObjectItem(root, KEY_TIME);
-		if (item == NULL || !cJSON_IsString(item)) {
+	item=cJSON_GetObjectItem(root, KEY_TIME);
+	if (item == NULL || !cJSON_IsString(item)) {
 		Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-time");
 		cJSON_Delete(root);
-			return -1;
-			}
+		return -1;
+	}
 //		memset(strBuf,0,sizeof(strBuf));
-		strcpy((char *)gGlobalData.ack_time ,item->valuestring);
-		GBK_Timeprocess((char *)gGlobalData.ack_time );		
+	strcpy((char *)gGlobalData.ack_time ,item->valuestring);
+	GBK_Timeprocess((char *)gGlobalData.ack_time );		
 
 	#endif
 	
@@ -578,16 +545,8 @@ int netData_process(char *payload,int payloadLen)
 	switch(functionFlag)
 	{
 		//上传间隔
-		case FUN_COLLECT_ARG:      //debug  1 设置采集方案
+		case FUN_COLLECT_ARG:      //  1 设置采集方案
 		#if 1//下发数据采集方案
-//		item=cJSON_GetObjectItem(root, KEY_DATA_UPTIME);
-//		if (item == NULL || !cJSON_IsNumber(item)) {
-//			Send_Fix_Ack(functionFlag,STATUS_FAIL,KEY_DATA_UPTIME);
-//			cJSON_Delete(root);
-//			return -1;
-//		}
-//		tCollectFreq=item->valueint;
-//		gGlobalData.useWorkArg[0].upTime=item->valueint;
 		if(gGlobalData.curWorkState != WORK_START)              //没点击启动的时候采集方案接收到才会上传等待状态，已经点了启动的时候就不会把上传服务器的状态给到等待
 			gGlobalData.cur_heart_state	= WAITING;	 
     printf("Recv Collect Preject!\r\n");
@@ -635,231 +594,150 @@ int netData_process(char *payload,int payloadLen)
 		}
 
 		gGlobalData.useWorkArg[1].upTime=itemSub->valueint;
-
-			//level
-//		itemSub=cJSON_GetObjectItem(item,KEY_LEVEL);
-//		if (item == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-level err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].level=itemSub->valueint;
-			
-			//waitTime
-//			itemSub=cJSON_GetObjectItem(item,KEY_TIME_WAIT);
-//			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-waitTime err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					itemSub=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].waitTime=itemSub->valueint;
-//			gGlobalData.Alltime+=gGlobalData.useWorkArg[j].waitTime;
 			
 			//totalTime 采集总时长倒计时
-			itemSub=cJSON_GetObjectItem(item,KEY_TIME_CJ);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-totalTime err");
-					cJSON_Delete(root);
-					cjsonArr=NULL;
-					itemSub=NULL;
-					item=NULL;
-					return -1;
-			}	
-			gGlobalData.Alltime=itemSub->valueint;	
-			//rate
-			itemSub=cJSON_GetObjectItem(item,KEY_DATA_RATE);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-rate err");
-					cJSON_Delete(root);
-					cjsonArr=NULL;
-					itemSub=NULL;
-					item=NULL;
-					return -1;
-			}
+		itemSub=cJSON_GetObjectItem(item,KEY_TIME_CJ);
+		if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-totalTime err");
+				cJSON_Delete(root);
+				cjsonArr=NULL;
+				itemSub=NULL;
+				item=NULL;
+				return -1;
+		}	
+		gGlobalData.Alltime=itemSub->valueint;	
+		//rate
+		itemSub=cJSON_GetObjectItem(item,KEY_DATA_RATE);
+		if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+			Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-rate err");
+			cJSON_Delete(root);
+			cjsonArr=NULL;
+			itemSub=NULL;
+			item=NULL;
+			return -1;
+		}
 			 //gGlobalData.freqUnitTime=itemSub->valueint;  //单次数据之间的采样间隔时间 ms
-			gGlobalData.useWorkArg[0].rateN=itemSub->valueint;	
+		gGlobalData.useWorkArg[0].rateN=itemSub->valueint;	
+		
+		/**成员内的inputs数组**/
+		//inputs
+		cjsonArr2=cJSON_GetObjectItem(item,KEY_INPUTS);
+		if (cjsonArr2 == NULL || !cJSON_IsArray(cjsonArr2)) {
+			Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-inputs err");
+			cJSON_Delete(root);
+			cjsonArr=NULL;
+			cjsonArr2=NULL;
+			item=NULL;
+			return -1;
+		}
 			
-			/**成员内的inputs数组**/
-			//inputs
-			cjsonArr2=cJSON_GetObjectItem(item,KEY_INPUTS);
-			if (cjsonArr2 == NULL || !cJSON_IsArray(cjsonArr2)) {
-				Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-inputs err");
+		//inputs数组尺寸
+		arryNum=cJSON_GetArraySize(cjsonArr2);
+		if(arryNum<1||arryNum>32)
+		{
+			Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-inputs num err");
+			cJSON_Delete(root);
+			cjsonArr=NULL;
+			cjsonArr2=NULL;
+			item=NULL;
+			return -1;
+		}
+		//inputs成员
+		gGlobalData.useWorkArg[0].chanelNum=arryNum;
+		for(i=0;i<arryNum;i++)
+		{
+			arryItem=cJSON_GetArrayItem(cjsonArr2,i);
+			if (arryItem == NULL || !cJSON_IsNumber(arryItem)) {
+				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs obj err");
 				cJSON_Delete(root);
 				cjsonArr=NULL;
 				cjsonArr2=NULL;
-				item=NULL;
 				return -1;
 			}
-			
-			//inputs数组尺寸
-			arryNum=cJSON_GetArraySize(cjsonArr2);
-			if(arryNum<1||arryNum>32)
+			ret=arryItem->valueint;
+			if(ret>33||ret<1)
 			{
-				Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-inputs num err");
+				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs val err");
 				cJSON_Delete(root);
 				cjsonArr=NULL;
 				cjsonArr2=NULL;
-				item=NULL;
 				return -1;
 			}
-			//inputs成员
-			gGlobalData.useWorkArg[0].chanelNum=arryNum;
-			for(i=0;i<arryNum;i++)
-			{
-				arryItem=cJSON_GetArrayItem(cjsonArr2,i);
-				if (arryItem == NULL || !cJSON_IsNumber(arryItem)) {
-					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs obj err");
-					cJSON_Delete(root);
-					cjsonArr=NULL;
-					cjsonArr2=NULL;
-					return -1;
-				}
-				ret=arryItem->valueint;
-				if(ret>33||ret<1)
-				{
-					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs val err");
-					cJSON_Delete(root);
-					cjsonArr=NULL;
-					cjsonArr2=NULL;
-					return -1;
-				}
-				gGlobalData.useWorkArg[0].inputs[i]=ret;
-			}
+			gGlobalData.useWorkArg[0].inputs[i]=ret;
+		}
 			
-			/**成员内的outs数组成员**/
-				//outs
-			cjsonArr2=cJSON_GetObjectItem(item,KEY_OUTS);
-			if (cjsonArr2 == NULL || !cJSON_IsArray(cjsonArr2)) {
-				Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-outs err");
-				cJSON_Delete(root);
-				cjsonArr=NULL;
-				cjsonArr2=NULL;
-				item=NULL;
-				return -1;
-			}
-			
+		/**成员内的outs数组成员**/
+			//outs
+		cjsonArr2=cJSON_GetObjectItem(item,KEY_OUTS);
+		if (cjsonArr2 == NULL || !cJSON_IsArray(cjsonArr2)) {
+			Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-outs err");
+			cJSON_Delete(root);
+			cjsonArr=NULL;
+			cjsonArr2=NULL;
+			item=NULL;
+			return -1;
+		}
+		
 			//outs数组尺寸
-			arryNum=cJSON_GetArraySize(cjsonArr2);
-			if(arryNum<1||arryNum>32)
-			{
-				Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-outs num err");
+		arryNum=cJSON_GetArraySize(cjsonArr2);
+		if(arryNum<1||arryNum>32)
+		{
+			Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-outs num err");
+			cJSON_Delete(root);
+			cjsonArr=NULL;
+			cjsonArr2=NULL;
+			item=NULL;
+			return -1;
+		}
+		//outs成员
+		gGlobalData.useWorkArg[0].chanelNum=arryNum;
+		for(i=0;i<arryNum;i++)
+		{
+			arryItem=cJSON_GetArrayItem(cjsonArr2,i);
+			if (arryItem == NULL || !cJSON_IsNumber(arryItem)) {
+				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs obj err");
 				cJSON_Delete(root);
 				cjsonArr=NULL;
 				cjsonArr2=NULL;
-				item=NULL;
 				return -1;
 			}
-			//outs成员
-			gGlobalData.useWorkArg[0].chanelNum=arryNum;
-			for(i=0;i<arryNum;i++)
+			ret=arryItem->valueint;
+			if(ret>33||ret<1)
 			{
-				arryItem=cJSON_GetArrayItem(cjsonArr2,i);
-				if (arryItem == NULL || !cJSON_IsNumber(arryItem)) {
-					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs obj err");
-					cJSON_Delete(root);
-					cjsonArr=NULL;
-					cjsonArr2=NULL;
-					return -1;
-				}
-				ret=arryItem->valueint;
-				if(ret>33||ret<1)
-				{
-					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs val err");
-					cJSON_Delete(root);
-					cjsonArr=NULL;
-					cjsonArr2=NULL;
-					return -1;
-				}
-				gGlobalData.useWorkArg[0].outs[i]=ret;
-			}	
-
-			//wave
-//			itemSub=cJSON_GetObjectItem(item,KEY_WAVE_TREAT);
-//			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-wave err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					itemSub=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].waveTreat=itemSub->valueint;
-			//freqTreat
-//			itemSub=cJSON_GetObjectItem(item,KEY_FREQ_TREAT);
-//			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-freq err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					itemSub=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].freqTreat=itemSub->valueint;
-			//time
-			itemSub=cJSON_GetObjectItem(item,KEY_TIME_ZL);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-			  Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-time err");
-			  cJSON_Delete(root);
-			  cjsonArr=NULL;
-			  itemSub=NULL;
-			  item=NULL;
-					return -1;
+				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs val err");
+				cJSON_Delete(root);
+				cjsonArr=NULL;
+				cjsonArr2=NULL;
+				return -1;
 			}
-			gGlobalData.useWorkArg[0].timeCheck=itemSub->valueint;
-//			gGlobalData.useWorkArg[j].timeTreat=itemSub->valueint;	
-//			gGlobalData.Alltime+=gGlobalData.useWorkArg[j].timeTreat;	
-		//waveCheck
-//			itemSub=cJSON_GetObjectItem(item,KEY_WAVE_CHECK);
-//			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-waveCheck err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					itemSub=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].waveCheck=itemSub->valueint;
-			//freqCheck
-//			itemSub=cJSON_GetObjectItem(item,KEY_FREQ_CHECK);
-//			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-freqCheck err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					itemSub=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].freqCheck=itemSub->valueint;
-			//timeCheck
-//			itemSub=cJSON_GetObjectItem(item,KEY_TIME_CHECK);
-//			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-//					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-timeCheck err");
-//					cJSON_Delete(root);
-//					cjsonArr=NULL;
-//					itemSub=NULL;
-//					item=NULL;
-//					return -1;
-//			}
-//			gGlobalData.useWorkArg[j].timeCheck=itemSub->valueint;
-	 
+			gGlobalData.useWorkArg[0].outs[i]=ret;
+		}	
+
+		//time
+		itemSub=cJSON_GetObjectItem(item,KEY_TIME_ZL);
+		if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+			Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-time err");
+			cJSON_Delete(root);
+			cjsonArr=NULL;
+			itemSub=NULL;
+			item=NULL;
+				return -1;
+		}
+		gGlobalData.useWorkArg[0].timeCheck=itemSub->valueint;
+ 
 		Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
 		osDelay(50);
 		//////////////2023.02.03新增 WWJZ
 	//	if (gGlobalData.curWorkMode==WORK_MODE_WT){
 			
 		//gGlobalData.curWorkState=WORK_START;//将运行状态开始  kardos 2023.02.03
-			send_LcdWorkStatus(2);//kardos 2023.02.03 修改设备工作状态为：等待经络检测
-			osDelay(50);
-			Countdown_Treat(gGlobalData.Alltime);
-			osDelay(50);
-			gGlobalData.curWorkMode = WORK_MODE_ZT;//2023.1.30增加
+		send_LcdWorkStatus(2);//kardos 2023.02.03 修改设备工作状态为：等待经络检测
+		osDelay(50);
+		Countdown_Treat(gGlobalData.Alltime);
+		osDelay(50);
+		gGlobalData.curWorkMode = WORK_MODE_ZT;//2023.1.30增加
 	//	}
-//		gGlobalData.Send_Client_Over= true;	  //debug  应答
+//		gGlobalData.Send_Client_Over= true;	  //  应答
 		break;
 		#endif
 		
@@ -868,169 +746,149 @@ int netData_process(char *payload,int payloadLen)
 		#if 4 //下发治疗方案
 		//下发治疗治疗方案
 		case FUN_COLLECT_TREAT:   
-		if(gGlobalData.Alltime!=0){    //by yls 2023/6/13 防止倒计时重复接收
-			break;
-		} 
-		item=cJSON_GetObjectItem(root, KEY_DATA_UPTIME);
-		if (item == NULL || !cJSON_IsNumber(item)) {
-			Send_Fix_Ack(functionFlag,STATUS_FAIL,KEY_DATA_UPTIME);
-			cJSON_Delete(root);
-			cjsonArr=NULL;
-			item=NULL;
-			return -1;
-		}
-		gGlobalData.useWorkArg[0].upTime=item->valueint;
-		gGlobalData.useWorkArg[1].upTime=item->valueint;
-		
-		//取第一级数组对象
-		cjsonArr=cJSON_GetObjectItem(root,  KEY_WORK);
-		if (cjsonArr == NULL || !cJSON_IsArray(cjsonArr)) {
-			Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-work array format err");
-			cJSON_Delete(root);
-			cjsonArr=NULL;
-			item=NULL;
-			return -1;
-		}
-		//获取work数组尺寸
-		gGlobalData.useWorkArg[0].chanelNum=cJSON_GetArraySize(cjsonArr);
-//		if(gGlobalData.useWorkArg[0].chanelNum<7)
-//		{
-//			Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-work arry object!=7");
-//			cJSON_Delete(root);
-//			cjsonArr=NULL;
-//			item=NULL;
-//			return -1;
-//		}
-		for(j=0;j<gGlobalData.useWorkArg[0].chanelNum;j++)
-		{
-			//获取work第一个对象成员
-			item=cJSON_GetArrayItem(cjsonArr,j);
-			if (item == NULL || !cJSON_IsObject(item)) {
-				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-work obj err");
+			if(gGlobalData.Alltime!=0){    //by yls 2023/6/13 防止倒计时重复接收
+				break;
+			} 
+			item=cJSON_GetObjectItem(root, KEY_DATA_UPTIME);
+			if (item == NULL || !cJSON_IsNumber(item)) {
+				Send_Fix_Ack(functionFlag,STATUS_FAIL,KEY_DATA_UPTIME);
 				cJSON_Delete(root);
 				cjsonArr=NULL;
-				itemSub=NULL;
 				item=NULL;
 				return -1;
 			}
-			/**成员内的普通数据**/
- 		
-			//level
-			itemSub=cJSON_GetObjectItem(item,KEY_LEVEL);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+			gGlobalData.useWorkArg[0].upTime=item->valueint;
+			gGlobalData.useWorkArg[1].upTime=item->valueint;
+			
+			//取第一级数组对象
+			cjsonArr=cJSON_GetObjectItem(root,  KEY_WORK);
+			if (cjsonArr == NULL || !cJSON_IsArray(cjsonArr)) {
+				Send_Fix_Ack(functionFlag,STATUS_FAIL, "key-work array format err");
+				cJSON_Delete(root);
+				cjsonArr=NULL;
+				item=NULL;
+				return -1;
+			}
+			//获取work数组尺寸
+			gGlobalData.useWorkArg[0].chanelNum=cJSON_GetArraySize(cjsonArr);
+			
+			for(j=0;j<gGlobalData.useWorkArg[0].chanelNum;j++)
+			{
+				//获取work第一个对象成员
+				item=cJSON_GetArrayItem(cjsonArr,j);
+				if (item == NULL || !cJSON_IsObject(item)) {
+					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-work obj err");
+					cJSON_Delete(root);
+					cjsonArr=NULL;
+					itemSub=NULL;
+					item=NULL;
+					return -1;
+				}
+				/**成员内的普通数据**/
+			
+				//level
+				itemSub=cJSON_GetObjectItem(item,KEY_LEVEL);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
 					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-level err");
 					cJSON_Delete(root);
 					cjsonArr=NULL;
 					itemSub=NULL;
 					item=NULL;
 					return -1;
-			}
-			gGlobalData.useWorkArg[j].level=itemSub->valueint;
-			
-			//inputs    debug
-			itemSub=cJSON_GetObjectItem(item,KEY_INPUTS);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+				}
+				gGlobalData.useWorkArg[j].level=itemSub->valueint;
+					
+					//inputs    
+				itemSub=cJSON_GetObjectItem(item,KEY_INPUTS);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
 					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-inputs err");
 					cJSON_Delete(root);
 					cjsonArr=NULL;
 					itemSub=NULL;
 					item=NULL;
 					return -1;
-			}
-			
-		  gGlobalData.useWorkArg[0].inputs[j]=itemSub->valueint;
+				}
+					
+				gGlobalData.useWorkArg[0].inputs[j]=itemSub->valueint;
 
-			//outs    debug
-			itemSub=cJSON_GetObjectItem(item,KEY_OUTS);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+					//outs    
+				itemSub=cJSON_GetObjectItem(item,KEY_OUTS);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
 					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-outs err");
 					cJSON_Delete(root);
 					cjsonArr=NULL;
 					itemSub=NULL;
 					item=NULL;
 					return -1;
-			}						
-			gGlobalData.useWorkArg[0].outs[j]=itemSub->valueint;
- 
-			//wave
-			itemSub=cJSON_GetObjectItem(item,KEY_WAVE_TREAT);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+				}						
+				gGlobalData.useWorkArg[0].outs[j]=itemSub->valueint;
+		 
+					//wave
+				itemSub=cJSON_GetObjectItem(item,KEY_WAVE_TREAT);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
 					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-wave err");
 					cJSON_Delete(root);
 					cjsonArr=NULL;
 					itemSub=NULL;
 					item=NULL;
 					return -1;
-			}
-			gGlobalData.useWorkArg[j].waveTreat=itemSub->valueint;
-			//freqTreat
-			itemSub=cJSON_GetObjectItem(item,KEY_FREQ_TREAT);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+				}
+				gGlobalData.useWorkArg[j].waveTreat=itemSub->valueint;
+				//freqTreat
+				itemSub=cJSON_GetObjectItem(item,KEY_FREQ_TREAT);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
 					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-freq err");
 					cJSON_Delete(root);
 					cjsonArr=NULL;
 					itemSub=NULL;
 					item=NULL;
 					return -1;
-			}
-			if(itemSub->valueint<=10000) gGlobalData.useWorkArg[j].freqTreat=itemSub->valueint;     //2023/7/2 现在只接受最大2000hz的频率  by yls   现在可以达到1w hz  2023/7/22
-			//time
-			itemSub=cJSON_GetObjectItem(item,KEY_TIME_ZL);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
-			  Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-time err");
-			  cJSON_Delete(root);
-			  cjsonArr=NULL;
-			  itemSub=NULL;
-			  item=NULL;
+				}
+				if(itemSub->valueint<=10000) gGlobalData.useWorkArg[j].freqTreat=itemSub->valueint;     //2023/7/2 现在只接受最大2000hz的频率  by yls   现在可以达到1w hz  2023/7/22
+				//time
+				itemSub=cJSON_GetObjectItem(item,KEY_TIME_ZL);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-time err");
+					cJSON_Delete(root);
+					cjsonArr=NULL;
+					itemSub=NULL;
+					item=NULL;
 					return -1;
-			}
-			gGlobalData.useWorkArg[j].timeTreat=itemSub->valueint;	
-			gGlobalData.Alltime+=gGlobalData.useWorkArg[j].timeTreat;	
-			
-			//waitTime
-			itemSub=cJSON_GetObjectItem(item,KEY_TIME_WAIT);
-			if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
+				}
+				gGlobalData.useWorkArg[j].timeTreat=itemSub->valueint;	
+				gGlobalData.Alltime+=gGlobalData.useWorkArg[j].timeTreat;	
+					
+				//waitTime
+				itemSub=cJSON_GetObjectItem(item,KEY_TIME_WAIT);
+				if (itemSub == NULL || !cJSON_IsNumber(itemSub)) {
 					Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-waitTime err");
 					cJSON_Delete(root);
 					cjsonArr=NULL;
 					itemSub=NULL;
 					item=NULL;
 					return -1;
+				}
+				gGlobalData.useWorkArg[j].waitTime=itemSub->valueint;
+				gGlobalData.Alltime+=gGlobalData.useWorkArg[j].waitTime;
 			}
-			gGlobalData.useWorkArg[j].waitTime=itemSub->valueint;
-			gGlobalData.Alltime+=gGlobalData.useWorkArg[j].waitTime;
-		}
-		Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
-		
-		Level= gGlobalData.useWorkArg[0].level;//初始默认档位赋值 
-		set_sampleMode(MODE_ZL);//再切一次设置治疗模式
-		gGlobalData.curWorkMode = WORK_MODE_ZL;//2023.1.30增加
-		gGlobalData.curWorkState=WORK_START;//将运行状态开始  kardos 2023.02.03
-		gGlobalData.cur_heart_state=WORKING;
-		Countdown_Treat(gGlobalData.Alltime);
-//		gGlobalData.Send_Client_Over= true;	   //采集结束后下发的治疗方案  debug  应答
-		printf("Recv ZL Preject!\r\n");
-		break;
+			Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
+			
+			Level= gGlobalData.useWorkArg[0].level;//初始默认档位赋值 
+			set_sampleMode(MODE_ZL);//再切一次设置治疗模式
+			gGlobalData.curWorkMode = WORK_MODE_ZL;//2023.1.30增加
+			gGlobalData.curWorkState=WORK_START;//将运行状态开始  kardos 2023.02.03
+			gGlobalData.cur_heart_state=WORKING;
+			Countdown_Treat(gGlobalData.Alltime);
+	//		gGlobalData.Send_Client_Over= true;	   //采集结束后下发的治疗方案    应答
+			printf("Recv ZL Preject!\r\n");
+			break;
 		#endif
 		
 		
 		
 		//采集控制
 		case FUN_COLLECT_CTL:	
-//			//workmode
-//			item=cJSON_GetObjectItem(root, KEY_WORK_MODE);
-//			if (item == NULL || !cJSON_IsNumber(item)) {
-//				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-workmode fail");
-//				cJSON_Delete(root);
-//				return -1;
-//			}
-//			tDataStartFlag=item->valueint;
-//			if(tDataStartFlag!=WORK_MODE_ZT&&tDataStartFlag!=WORK_MODE_JB&&tDataStartFlag!=WORK_MODE_ZL)
-//			{
-//				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-workmode value err");
-//				break;
-//			}
-//			gGlobalData.curWorkMode=tDataStartFlag;			
+//			//workmode		
 			item=cJSON_GetObjectItem(root, KEY_VALUE);
 			if (item == NULL || !cJSON_IsNumber(item)) {
 				Send_Fix_Ack(functionFlag,STATUS_FAIL,"key-value err");
@@ -1323,7 +1181,7 @@ int netData_process(char *payload,int payloadLen)
 		osDelay(50);
 		send_visitSex(reet);       //发送指令至屏幕显示下发数据的性别
 		osDelay(50);
-		send_visitAge(gUserInfo.age);   //debug  发送年龄到屏幕显示
+		send_visitAge(gUserInfo.age);   //  发送年龄到屏幕显示
 		osDelay(50);
 	  Send_Fix_Ack(functionFlag,STATUS_OK,"ok");
     
@@ -1609,7 +1467,6 @@ void StartMqttSendTask(void const *arg)
 			{
 				MQTTPublish(gTopicInfo.cmdPost, &messageSend);
 			}
-
 			gGlobalData.Send_Heart_Bag=false;
 		}
 		//wifi向服务器发送心跳
@@ -1627,10 +1484,8 @@ void StartMqttSendTask(void const *arg)
 				osDelay(50);
 				__disable_irq();                                    //锁住
 				HAL_UART_Transmit_DMA(&huart3,(uint8_t *)messageSend.payload,messageSend.payloadlen);	
-				__enable_irq();
-//				HAL_UART_Transmit_DMA(&huart3,(char*)gAck,strlen(gAck));	
+				__enable_irq();	
 				osDelay(10);
-
 			}
 		}
 	        
@@ -1645,13 +1500,10 @@ void StartMqttSendTask(void const *arg)
 		  else if(gGlobalData.wifiStatus == true && gGlobalData.netKind == 2){
 				sprintf(bufwifi_ack_head,"AT+MQTTPUBRAW=\"%s\",1,0,%d",gTopicInfo.streamPost,messageSend.payloadlen);  //wifi应答头   加了回车
 				osDelay(50);
-				atk_8266_send_cmd((uint8_t *)bufwifi_ack_head,strlen(bufwifi_ack_head));
-//				HAL_UART_Transmit_DMA(&huart3,(char*)bufwifi_ack_head,strlen(bufwifi_ack_head)); 
+				atk_8266_send_cmd((uint8_t *)bufwifi_ack_head,strlen(bufwifi_ack_head)); 
 				osDelay (50);
 				HAL_UART_Transmit_DMA(&huart3,(uint8_t *)messageSend.payload,messageSend.payloadlen);     //不行还是用这句
-
-				osDelay(10);            
-            
+				osDelay(10);                      
 			}
 			else if(gGlobalData.yd4gStatus == true  &&  gGlobalData.netKind == 3){
 				sprintf(buf4g_ack_head,"AT+QMTPUBEX=0,0,0,0,\"%s\",%d\r\n",gTopicInfo.streamPost,messageSend.payloadlen);//4g应答头
@@ -1659,28 +1511,23 @@ void StartMqttSendTask(void const *arg)
 				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)buf4g_ack_head,strlen(buf4g_ack_head));
 				osDelay(50);
 				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)messageSend.payload,messageSend.payloadlen);
-				osDelay(10);          
-				
+				osDelay(10);          				
 			}
 			gGlobalData.Send_Data_Task=false;
-
 		}
     
 		//写数据固定应答
 		if(gGlobalData.Send_Ack_Task == true)
-		{
-            
+		{           
  			messageSend.payloadlen = strlen(gAck);
 			messageSend.payload=gAck;
-
 			if(gGlobalData.rj45Status == true  &&  gGlobalData.netKind == 1)
 			{
 				MQTTPublish(gTopicInfo.cmdPost, &messageSend);
 				printf("ACK  to MQTT!\r\n");
 			}
 			else if(gGlobalData.wifiStatus == true  &&  gGlobalData.netKind == 2)        													//wifi应答
-			{	
-				
+			{					
 				sprintf(bufwifi_ack_head,"AT+MQTTPUBRAW=\"%s\",1,0,%d",gTopicInfo.cmdPost,messageSend.payloadlen);  //wifi应答头				
 				osDelay(50);
 				atk_8266_send_cmd((uint8_t *)bufwifi_ack_head,strlen(bufwifi_ack_head));
@@ -1689,23 +1536,18 @@ void StartMqttSendTask(void const *arg)
 				HAL_UART_Transmit_DMA(&huart3,(uint8_t *)gAck,strlen(gAck));
 				__enable_irq();
 				osDelay(10);
-
 			}
 			else if(gGlobalData.yd4gStatus == true  &&gGlobalData.netKind == 3)																																		//4g应答
 			{
-
 				sprintf(buf4g_ack_head,"AT+QMTPUBEX=0,0,0,0,\"%s\",%d\r\n",gTopicInfo.cmdPost,messageSend.payloadlen);//4g应答头				
 				osDelay(10);
 				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)buf4g_ack_head,strlen(buf4g_ack_head));
 				osDelay(50);
 				HAL_UART_Transmit_DMA(&huart6,(uint8_t *)gAck,strlen(gAck));
 				osDelay(10);
-
 			}	
 			gGlobalData.Send_Ack_Task=false;
-
 		}
-
 		//温湿度采集认为开启时 下面方法有效
  		if(gGlobalData.Send_Ping_Task == true)
 		{
@@ -1716,6 +1558,7 @@ void StartMqttSendTask(void const *arg)
 			}
 			gGlobalData.Send_Ping_Task=false;
 		}
+
 	}
 }
 void cmdReplyProcess(char* msg,int msgLen)

@@ -20,10 +20,8 @@ bool HAL_PCA9554_init(void)
 //			return false;
 //		}
 		osDelay(50);
-
 	}
 	return true;
-
 }
 
 //读取输出寄存器先前的值
@@ -40,7 +38,6 @@ bool HAL_PCA9554_readIn(uint8_t adr,uint8_t* data)
 		return false;
 	}
 	return true;
-
 	
 //	uint8_t send[1]={0x01};
 //	uint8_t oldVal=0;	
@@ -104,14 +101,12 @@ void update_oldValue(uint8_t sNum,uint8_t dir,uint8_t status,uint8_t *oldVal)
 //channel:通道号0~32 dir:某通道的输入\输出继电器选择 status:0 关闭 1打开
 bool set_channle_status(uint8_t channel,uint8_t dir,uint8_t status)
 {
-	uint8_t address=0,addressR=0;
+	static uint8_t addressR=0;
+	uint8_t address=0;
 	uint8_t oldVal=0,sNum=0;
 	
 	uint8_t send[2]={0x01,0x00};
-	
-	//读取先前的继电器状态
-	addressR=address|0x01;
-	
+		
 	if(channel>32)
 		return false;
 	
@@ -187,7 +182,14 @@ bool set_channle_status(uint8_t channel,uint8_t dir,uint8_t status)
 			//某组的哪个引脚号
 			sNum=channel*2;	
 		}
-//		Device_Write_One_Byte(address,0x03,0x00);            //每次使用前初始化一次
+		if(gGlobalData.curWorkMode == WORK_MODE_ZT){             //采集的时候
+			if(addressR != address){
+				Device_Write_One_Byte(address,0x01,0x00);            //每次切换子板时初始化一次
+				osDelay(50);
+				Device_Write_One_Byte(address,0x03,0x00);            
+			}
+			addressR = address;
+		}
 		if(HAL_PCA9554_readIn(address,&oldVal)==true)
 		{
 		}else{
@@ -229,7 +231,7 @@ bool set_sampleMode(uint8_t mode)
 			WriteOUT8(GPIO_PIN_RESET);      
 			WriteOUT9(GPIO_PIN_RESET);
         
-//			WriteOUT10(GPIO_PIN_SET);        //原理图没写的io口 3 4 10 11 12 14  2023/8/11 by yls
+//			WriteOUT10(GPIO_PIN_SET);       //原理图没写的io口 3 4 10 11 12 14  2023/8/11 by yls
 //			WriteOUT11(GPIO_PIN_SET);
 //			WriteOUT12(GPIO_PIN_SET);        
 //			WriteOUT13(GPIO_PIN_SET);           //这个改灯了      
@@ -281,7 +283,7 @@ bool set_sampleMode(uint8_t mode)
 //			WriteOUT3(GPIO_PIN_SET);
 //			WriteOUT4(GPIO_PIN_SET);
 //			WriteOUT5(GPIO_PIN_SET);
-			WriteOUT6(GPIO_PIN_RESET);         //关闭大椎5v输出
+			WriteOUT6(GPIO_PIN_RESET);         //关闭大椎5v输出  RESET DEBUGY
 		
 			WriteOUT7(GPIO_PIN_RESET);
 			WriteOUT8(GPIO_PIN_RESET);
@@ -291,8 +293,7 @@ bool set_sampleMode(uint8_t mode)
 //			WriteOUT11(GPIO_PIN_RESET);
 //			WriteOUT12(GPIO_PIN_RESET);
 //			WriteOUT13(GPIO_PIN_RESET);          //这个改灯了
-//			WriteOUT14(GPIO_PIN_RESET);
-		
+//			WriteOUT14(GPIO_PIN_RESET);		
 			WriteOUT_Mode(GPIO_PIN_SET);
 			break;
 		case MODE_CLOSE:	//IO2_0 IO7_0 IO8_0 IO9_0 IO3_0 4 5 6 10-14 1 全断开

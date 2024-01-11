@@ -37,6 +37,11 @@ extern char gAck[JSON_ACK_MAX_LEN];
 //float Getf_Average(float *pt,int l);
 uint16_t Gets_Average(uint16_t *pt,int l);
 
+uint16_t Gets_Maximum(uint16_t *pt,int l);
+
+uint16_t Gets_Rmsl(uint16_t *pt,int l);
+uint16_t Gets_Rmsl_update(uint16_t data);
+
 /*电机相关*/
 int SendPlusePressData(void);
 

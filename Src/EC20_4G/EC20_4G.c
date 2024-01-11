@@ -12,19 +12,11 @@
 #include "wifi.h"
 #include "lcdTask.h"
 
-uint8_t aTxBuffer[]="串口发送数据\r\n";
-uint8_t aRxBuffer1[1024];		// 用来接收串口1发送的数据
-uint8_t aRxBuffer2[2048];		// 用来接收串口4发送的数据		AT+QICLOSE=0
-extern	bool yd_4gfalg;
 char *cjdata_f_4g,*cjdata_p_4g;
 char _cjdata_BK_Num_4g=0,_cjdata_i_4g;
 
-int netData_process(char *payload,int payloadLen);
 uint8_t aTxBuffer0[]="AT+QICLOSE=0\r\n";		//关闭上次的socket连接
 uint8_t aTxBuffer1[]="AT\r\n";							//测试指令，若返回OK，则模块可正常通信
-//uint8_t aTxBuffer2[]="AT+QICSGP=1,1,\"CMNET\"\r\n";
-//uint8_t aTxBuffer3[]="AT+QIDEACT=1\r\n";
-//uint8_t aTxBuffer4[]="AT+QIACT=1\r\n";
 uint8_t aTxBuffer2[]="AT+CPIN?\r\n";				//检查SIM卡是否在位
 uint8_t aTxBuffer3[]="AT+CSQ\r\n";					//查询信号质量
 uint8_t aTxBuffer4[]="AT+CREG?\r\n";				//查询入网状态
@@ -42,8 +34,7 @@ uint8_t aTxBuffer15[]="ATE0\r\n";
 
 void EC200MqttClientTask(void const * argument)	//EC20配置初始化，连接MQTT服务器    void const * argument
 {
-	char nums=0;
-	yd_4gfalg = true;
+	unsigned char nums=0;
 	char *cjdata;
 	char buf_MQ_User_4g[50],bufMqid_4g[50],bufServer_4g[50];
 	char buf4g_ack_head[128]={0,};				//配置为接收模式
@@ -181,31 +172,31 @@ void EC200MqttClientTask(void const * argument)	//EC20配置初始化，连接MQTT服务器
 						}
 						for(_cjdata_i_4g = 0;_cjdata_i_4g <= _cjdata_BK_Num_4g;_cjdata_i_4g++)
 						{
-						if(cjdata_p_4g = strstr((const char*)(cjdata_p_4g+1),"}")){
-							if(_cjdata_i_4g == _cjdata_BK_Num_4g){
-								_cjdata_BK_Num_4g=0;
-								printf("解析成功_4g\r\n");
-								gGlobalData.heart_count = 0;             //进来清空倒计时
-								gGlobalData.yd4gStatus = true;
-								netData_process(cjdata,sizeof(cjdata));
-								memset(RecCom6,0,sizeof(RecCom6));
-								if(gGlobalData.ResetStatus == true)
-								{
-									gGlobalData.ResetStatus = false;
-									do_work_ctl(3);
-									osDelay (100); 
-									send_QRInfo(gDeviceParam.qrbuf,strlen((const char*)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
-								}		
-								send_NetSync(5);    //网络灯 1601  
-								osDelay (100);	
-								send_duan_wang(0);	//断网提示 1900									
-							}					
-						}
-						else break;
+							if(cjdata_p_4g = strstr((const char*)(cjdata_p_4g+1),"}")){
+								if(_cjdata_i_4g == _cjdata_BK_Num_4g){
+									_cjdata_BK_Num_4g=0;
+									printf("解析成功_4g\r\n");
+									gGlobalData.heart_count = 0;             //进来清空倒计时
+									gGlobalData.yd4gStatus = true;
+									netData_process(cjdata,sizeof(cjdata));
+									memset(RecCom6,0,sizeof(RecCom6));
+									if(gGlobalData.ResetStatus == true)
+									{
+										gGlobalData.ResetStatus = false;
+										do_work_ctl(3);
+										osDelay (100); 
+										send_QRInfo(gDeviceParam.qrbuf,strlen((const char*)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
+									}		
+									send_NetSync(5);    //网络灯 1601  
+									osDelay (100);	
+									send_duan_wang(0);	//断网提示 1900									
+								}					
+							}
+							else break;
 						}
 						_cjdata_BK_Num_4g = 0;
 						_cjdata_i_4g = 0;
-						}
+					}
 				}
 				HAL_UART_Receive_DMA(&huart6, RecCom6,COM6_REC_MAX);				
 			}

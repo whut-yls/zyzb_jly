@@ -36,6 +36,7 @@ int Init_All_Parameter(void)
 	gGlobalData.ResetStatus=true;
 	gGlobalData.cur_heart_state=UNKNOWN;
 	gGlobalData.Auto_Level_Ctl = 0;                                                //³õÊ¼µµÎ»Îª0
+	gGlobalData.current_time = 0;
 	for(i=0;i<2;i++)
 	{
 		gGlobalData.useWorkArg[i].workMode=gDeviceParam.workArg[i].workMode;

@@ -162,7 +162,7 @@ void Dac8831_Set_Amp(float amp, uint16_t *_pBuf)
 	for(int i = 0; i < 100; ++i)
 	{
 		buf_data = _pBuf[i];
-		buf_data = (buf_data - 32767)*amp / 255 + 32767;
+		buf_data = (buf_data - 32767)*amp / 255*42/60 + 32767;
 		_pBuf[i] = (uint16_t)buf_data;	
 	}
 	uint32_t _cmd;

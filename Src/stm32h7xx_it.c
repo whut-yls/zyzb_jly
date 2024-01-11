@@ -455,7 +455,7 @@ void UART7_IRQHandler(void)
 				HAL_UART_DeInit(&huart7);
 				MX_UART7_Init();
 				gUartLcdInit=false;
-				HAL_UART_Receive_DMA(&huart7, RecCom7,COM7_REC_MAX);
+//				HAL_UART_Receive_DMA(&huart7, RecCom7,COM7_REC_MAX);
 				__HAL_UART_CLEAR_IDLEFLAG(&huart7);
 				__HAL_UART_ENABLE_IT(&huart7, UART_IT_IDLE);
 				

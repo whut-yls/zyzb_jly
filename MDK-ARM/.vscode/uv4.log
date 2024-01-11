@@ -1,0 +1,20 @@
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'f:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'motorDriver'
+compiling main.c...
+../Src/main.c(1789): warning:  #550-D: variable "unitTime"  was set but never used
+  	int16_t collectTime=0,unitTime=0,CountDown_Time = 0;
+../Src/main.c(2120): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *restrict"
+  						char *token = strtok(buf1, ".");
+../Src/main.c(2141): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+  							gDeviceParam.mqArg.mqttPort=atoi(buf2);				
+../Src/main.c(2074): warning:  #177-D: variable "gbk0"  was declared but never referenced
+  	uint8_t gbk0[8]={0,};
+../Src/main.c(2075): warning:  #177-D: variable "gbkNum0"  was declared but never referenced
+  	uint8_t gbkNum0[13]={0,};
+../Src/main.c: 5 warnings, 0 errors
+linking...
+Program Size: Code=156116 RO-data=2160 RW-data=1148 ZI-data=314572  
+FromELF: creating hex file...
+After Build - User command #1: fromelf --bin -o ".\bin_file\motorDriver.bin" "motorDriver\motorDriver.axf"
+"motorDriver\motorDriver.axf" - 0 Error(s), 5 Warning(s).
+Build Time Elapsed:  00:00:06
