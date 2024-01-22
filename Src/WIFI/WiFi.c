@@ -123,7 +123,7 @@ void WifiMqttClientTask(void const * argument)        //void StartDefaultTask(vo
 								if(gGlobalData.ResetStatus == true)
 								{
 									gGlobalData.ResetStatus = false;
-									do_work_ctl(3);
+									do_work_ctl(Lcd_Button_to_Reset);
 									osDelay (100); 
 									send_QRInfo(gDeviceParam.qrbuf,strlen((const char*)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示								
 								}

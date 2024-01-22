@@ -25,19 +25,17 @@ extern "C" {
 #define	HIGH		1
 #define LOW			0
 
-#define Lcd_Button_to_Start    			1
-#define Lcd_Button_to_Pause    			2
-#define Lcd_Button_to_Reset    			3
-#define Lcd_Button_to_Level_Up 			4
-#define Lcd_Button_to_Level_Down    5
+#define Lcd_Button_to_Start    			1           //启动
+#define Lcd_Button_to_Pause    			2						//暂停
+#define Lcd_Button_to_Reset    			3						//复位
+#define Lcd_Button_to_Level_Up 			4						//加档
+#define Lcd_Button_to_Level_Down    5						//减档
 /* USER CODE END Includes */
 /* Private defines ------------------------------*/
 //extern char gAck_heart[JSON_ACK_MAX_LEN];        //debug 2023/8/4
 extern char gAck[JSON_ACK_MAX_LEN];
 //float Getf_Average(float *pt,int l);
 uint16_t Gets_Average(uint16_t *pt,int l);
-
-uint16_t Gets_Maximum(uint16_t *pt,int l);
 
 uint16_t Gets_Rmsl(uint16_t *pt,int l);
 uint16_t Gets_Rmsl_update(uint16_t data);

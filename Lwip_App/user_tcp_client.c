@@ -396,7 +396,7 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 		if(gGlobalData.ResetStatus==true)
 		{
 			gGlobalData.ResetStatus=false;
-			do_work_ctl(3);
+			do_work_ctl(Lcd_Button_to_Reset);
 			send_QRInfo(gDeviceParam.qrbuf,strlen((const char *)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
 		}
 		cnt_heartbag = 0;											  	//发送心跳清空心跳计数器		
@@ -430,7 +430,7 @@ void StartMqttClientTask(void const *arg)		//记得增加栈空间尺寸 否则可能导致溢出
 				if(gGlobalData.ResetStatus==true)
 				{
 					gGlobalData.ResetStatus=false;
-					do_work_ctl(3);
+					do_work_ctl(Lcd_Button_to_Reset);
 					send_QRInfo(gDeviceParam.qrbuf,strlen((const char *)gDeviceParam.qrbuf));   //发送二维码到屏幕左侧上显示
 				}
 				send_NetSync(1);  																																		  //网络灯 1601  //**//
@@ -1392,10 +1392,10 @@ int netData_process(char *payload,int payloadLen)
 			}
 			valueFlag=item->valueint;
 			if(valueFlag==1){     //加档
-				do_work_ctl(4);
+				do_work_ctl(Lcd_Button_to_Level_Up);
 			}
 			else if(valueFlag==2){    //减档
-				do_work_ctl(5);
+				do_work_ctl(Lcd_Button_to_Level_Down);
 			}
 			osDelay(10);
 			cnt_heartbag = 0;												//发送心跳清空心跳计数器			

@@ -84,3 +84,4 @@ motordriver\common.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsi
 motordriver\common.o: ..\Drivers\BSP\Components\wt2003hx\Wt2003hx.h
 motordriver\common.o: ..\Drivers\BSP\Components\wt2003hx\timer.h
 motordriver\common.o: ..\Inc\Includes\dac8831.h
+motordriver\common.o: ..\Inc\Includes\myadc.h

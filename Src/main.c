@@ -151,7 +151,7 @@ uint16_t gADC1_DMA_BUF[AD1_NUM*N_NUM];
 uint16_t gADC1_VALUE[AD1_NUM];
 uint16_t gADC1_VALUE_F[AD1_NUM];
 
-uint16_t gADC1_BUF[400];
+uint16_t gADC1_Current_FeedBack_BUF[ADC1_CurrentNUM];
 
 uint16_t gADC3_DMA_BUF[AD3_NUM*N_NUM];
 uint16_t gADC3_VALUE[AD3_NUM];
@@ -204,16 +204,14 @@ static int count1 = 0;
 static int cnt_down = 0;
 static int Resetcnt = 0;
 
-volatile uint16_t RecMAX;
-uint16_t RecRmsl;  //ADC1
-uint16_t RecRmsl_old = 0;  //ADC1采样治疗反馈
-uint16_t ADC1_ZL_Feedback = 0;
+uint16_t RecRmsl;  							//ADC1采样有效值
+uint16_t RecRmsl_old = 0;  			//ADC1采样有效值做对比
+uint16_t ADC1_ZL_Feedback = 0;	//ADC1治疗采样反馈次数
 float Level=0;//档位强度控制变量
 //软件定时器回调函数
 static void vAutoLoadTimerFunc( TimerHandle_t xTimer )
 {
 //	xEventGroupSetBits(xCreatedEventGroup, TASK_BIT_1);//喂狗
-	//debug_a = (gADC1_VALUE_F[0]>>8)+(gADC1_VALUE_F[0]<<8);
 	if(count1 == 0){
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
 	}
@@ -238,15 +236,15 @@ static void vAutoLoadTimerFunc( TimerHandle_t xTimer )
 	//治疗计时
 	if(gGlobalData.curWorkMode == WORK_MODE_ZL && gGlobalData.curWorkState == WORK_START)//一秒进来一次
 	{
-//		if((RecRmsl - RecRmsl_old) > 5){
-//			ADC1_ZL_Feedback ++;
-//		}
-//		if(ADC1_ZL_Feedback >= 500){
-//			ADC1_ZL_Feedback = 0;
-//			gGlobalData.current_time = 1;
-//		}
+		if((RecRmsl - RecRmsl_old) > 20){             																		 //电流超过预设0.1ma开始降档
+			ADC1_ZL_Feedback ++;
+		}
+		if(ADC1_ZL_Feedback >= 500){
+			ADC1_ZL_Feedback = 0;
+			gGlobalData.ZL_Feedback_To_Down_Level = 1;																			//1s内连续超过500次预设值开始降档
+		}
 		if(cnt_down == 1000 ){
-			if((gGlobalData.Alltime != 0 && gGlobalData.curWorkState == WORK_START))
+			if(gGlobalData.Alltime != 0)
 			{
 				gGlobalData.Alltime = gGlobalData.Alltime - 1;	
 			}
@@ -351,10 +349,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-	gGlobalData.current_treatNums = 0;
-	gGlobalData.useWorkArg[0].timeTreat = 0;
-	gGlobalData.useWorkArg[0].waitTime = 0;
-	//gDeviceParam.heartRate = 2;
  
   MakeSinTable(ch1buf, 100, 0, 65535);
 	Dac8831_Set_Amp(60, ch1buf);
@@ -402,10 +396,6 @@ int main(void)
 	//new end
 	Init_All_Parameter();
 
-	gDeviceParam.heartRate=15;    //心跳间隔15s
-	gGlobalData.useWorkArg[gGlobalData.current_treatNums].level=0;
-	gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat=0;
-	gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat=0;
 	__enable_irq();
   /* USER CODE BEGIN 2 */
 	MX_LWIP_Init();
@@ -732,21 +722,21 @@ void MX_ADC1_Init(uint32_t _ulFreq)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV12;   // 240M/12=20M  240M/64=3.75M
-  hadc1.Init.Resolution = ADC_RESOLUTION_16B;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;//ADC_SCAN_DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;//ADC_EOC_SEQ_CONV;  
-  hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;   //ENABLE
-  hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV12;   	// 240M/12=20M  240M/64=3.75M
+  hadc1.Init.Resolution = ADC_RESOLUTION_16B;						//16位分辨率 
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;						//禁止扫描，因为仅开了一个通道 			ADC_SCAN_DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;				//EOC转换结束标志										ADC_EOC_SEQ_CONV;  
+  hadc1.Init.LowPowerAutoWait = DISABLE;								//禁止低功耗自动延迟特性
+  hadc1.Init.ContinuousConvMode = DISABLE;   						//禁止自动转换，采用的软件触发      ENABLE
+  hadc1.Init.NbrOfConversion = 1;												//使用了1个转换通道 	
+  hadc1.Init.DiscontinuousConvMode = DISABLE;						//禁止不连续模式
   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_CC1;   // ADC_SOFTWARE_START
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING; //ADC_EXTERNALTRIGCONVEDGE_NONE
-  hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;  //ADC_CONVERSIONDATA_DMA_ONESHOT
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;			 	//ADC_EXTERNALTRIGCONVEDGE_NONE
+  hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;  	//DMA循环模式接收ADC转换的数据 ADC_CONVERSIONDATA_DMA_ONESHOT
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
-  hadc1.Init.OversamplingMode = DISABLE;
-  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  hadc1.Init.OversamplingMode = DISABLE;								//过采样模式关闭
+	if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -767,7 +757,7 @@ void MX_ADC1_Init(uint32_t _ulFreq)
   */
   sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5 ;   //ADC_SAMPLETIME_16CYCLES_5
+  sConfig.SamplingTime = ADC_SAMPLETIME_64CYCLES_5 ;   //ADC_SAMPLETIME_16CYCLES_5
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -781,7 +771,7 @@ void MX_ADC1_Init(uint32_t _ulFreq)
 	MX_TIM1_Init(_ulFreq);
   
 	/* ## - 6 - 启动ADC的DMA方式传输 ####################################### */
-	if (HAL_ADC_Start_DMA(&hadc1,(uint32_t *)gADC1_BUF,400) != HAL_OK)
+	if (HAL_ADC_Start_DMA(&hadc1,(uint32_t *)gADC1_Current_FeedBack_BUF,ADC1_CurrentNUM) != HAL_OK)
 	{
 		Error_Handler();
 	}
@@ -1755,14 +1745,12 @@ void Set_Input_Output(uint8_t Flag)
 {
 	if(sON==Flag)
 	 {
-//		 taskENTER_CRITICAL(); 
 		 __disable_irq(); 
 		 set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sON); 
-		 __enable_irq();         
-//   	taskEXIT_CRITICAL(); 
-        
+		 __enable_irq();                 
      if(gGlobalData.curWorkMode == WORK_MODE_ZL)
 			 osDelay(50);
+		 
      __disable_irq();                  
 		 set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sON);           		 
      __enable_irq();
@@ -1773,7 +1761,8 @@ void Set_Input_Output(uint8_t Flag)
 			set_channle_status(gGlobalData.useWorkArg[0].outs[gGlobalData.channelPos],DIR_OUT,sOFF);		 						           
 		  __enable_irq();
 			if(gGlobalData.curWorkMode == WORK_MODE_ZL)
-					osDelay(50);         
+					osDelay(50); 
+			
 			__disable_irq();
 			set_channle_status(gGlobalData.useWorkArg[0].inputs[gGlobalData.channelPos],DIR_IN,sOFF);
 			__enable_irq();
@@ -1816,11 +1805,7 @@ void StartDefaultTask(void const * argument)
 	
 	int16_t collectTime=0,CountDown_Time = 0;
 	/*adc 校准**/
-//	if(HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED)!=HAL_OK)	//阻塞方式
-//	{
-//		Error_Handler();
-//	}
-//	
+
 	if(HAL_ADCEx_Calibration_Start(&hadc3, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED)!=HAL_OK)
 	{
 		Error_Handler();
@@ -1828,8 +1813,7 @@ void StartDefaultTask(void const * argument)
 	/*等待校准结束*/
 	osDelay(10);	//可以删掉  vTaskDelay()
 	
-	/*开始dma接收adc，dma满产生中断*/
-//	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM); 					
+	/*开始dma接收adc，dma满产生中断*/ 					
 	HAL_ADC_Start_DMA(&hadc3, (uint32_t *)gADC3_DMA_BUF,N_NUM* AD3_NUM);
 	
 	/*获取内部参考电压*/
@@ -1847,7 +1831,6 @@ void StartDefaultTask(void const * argument)
 		if(collectTime>=1)	//每10ms更新一次
 		{			
 			collectTime=0;
-//			HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
 			HAL_ADC_Start_DMA(&hadc3, (uint32_t *)gADC3_DMA_BUF,N_NUM* AD3_NUM);//直流采样
 		}
 		if(gDeviceParam.devLock==true)
@@ -1896,28 +1879,28 @@ void StartDefaultTask(void const * argument)
 						break;
 					case WORK_MODE_ZL:
 						CountDown_Time = gGlobalData.Alltime;
-											
+										
 						//治疗模式
 						set_sampleMode(MODE_ZL);
-						osDelay(500);
 						Wave_select(gGlobalData.useWorkArg[0].waveTreat, ch1buf);									                  //波形选择
 						Dac8831_Set_Amp(gGlobalData.useWorkArg[0].level, ch1buf);									                  //幅值改变		
-						DAC8831_Set_Data_Dma(ch1buf,sizeof(ch1buf)/2,gGlobalData.useWorkArg[0].freqTreat);					//定时器开启产生波形				
+						DAC8831_Set_Data_Dma(ch1buf,sizeof(ch1buf)/2,gGlobalData.useWorkArg[0].freqTreat);					//定时器开启产生波形
+						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗	                   
+						Set_Input_Output(sON);   //治疗 输出打开  //输入打开					
 						send_treatSel(gGlobalData.useWorkArg[0].freqTreat,
 									gGlobalData.useWorkArg[0].level,
 								 (gGlobalData.useWorkArg[0].timeTreat)/60);	 													                  //这一句是发送jly下发治疗方案给屏幕
+						osDelay(500);
+						MX_ADC1_Init(gGlobalData.useWorkArg[0].freqTreat);                                          //开启adc1反馈采样	
+//						Send_LcdVoltage(5.84f*gGlobalData.useWorkArg[0].level);	
+						Send_LcdVoltage(4.20f*gGlobalData.useWorkArg[0].level);	                                    //by yls 2024/1/19 更新60档位最大输出对应的波形有效值
 						osDelay(100);
-						MX_ADC1_Init(2400-1);                                                            									//开启adc1反馈采样
-						Send_LcdVoltage(5.84*gGlobalData.useWorkArg[0].level);	
-						osDelay(100);
-						HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_RESET);																		  //中转板切到治疗	                   
-						Set_Input_Output(sON);   //治疗 输出打开  //输入打开
 						channelTime=0;	//开始计时
 						osDelay(200);
 						send_LcdWorkStatus(4);//kardos 2023.02.03 修改设备工作状态为：经络理疗中
 						osDelay(100);
 						send_LcdOutStatus(1);
-						
+						osDelay(500);
 						RecRmsl_old = Gets_Rmsl_update(RecRmsl);
 						break;
 					default:
@@ -1979,7 +1962,7 @@ void StartDefaultTask(void const * argument)
 								Countdown_Treat(gGlobalData.Alltime);
 								osDelay(10);
 								if(gGlobalData.Auto_Level_Ctl != 0 && gGlobalData.Auto_Level_Ctl != (uint8_t)Level && gGlobalData.Alltime >= 120){     //自动加减档位控制,下发接收的时候有5-60的范围控制
-									gGlobalData.Auto_Level_Ctl > (uint8_t)Level ? do_work_ctl(4) : do_work_ctl(5);
+									gGlobalData.Auto_Level_Ctl > (uint8_t)Level ? do_work_ctl(Lcd_Button_to_Level_Up) : do_work_ctl(5);
 								}
 								else if(gGlobalData.Auto_Level_Ctl == (uint8_t)Level){                                                                   //加减控制完后清0重置
 									gGlobalData.Auto_Level_Ctl = 0;
@@ -1991,7 +1974,7 @@ void StartDefaultTask(void const * argument)
 							  if(((gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat + gGlobalData.useWorkArg[gGlobalData.current_treatNums].waitTime)*1000-channelTime)<=120000)//说明是最后60秒 开始降低档位
 								{
 									if(channelTime-countTime>=4000 && (uint8_t)Level>10){
-										do_work_ctl(5);
+										do_work_ctl(Lcd_Button_to_Level_Down);
 										countTime=channelTime;									
 									}
 								}
@@ -2058,8 +2041,9 @@ void StartDefaultTask(void const * argument)
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);	//这一句是发送jly切换治疗方案给屏幕
 										osDelay(100);
-										Send_LcdVoltage(5.84f*Level);										
-							  		osDelay(200);
+//										Send_LcdVoltage(5.84f*Level);										
+							  		Send_LcdVoltage(4.20f*Level);										
+										osDelay(200);
 										/*切换为下一通道*/
 										//输出打开   //输入打开                                       
 										Set_Input_Output(sON);      //治疗                                       
@@ -2216,14 +2200,12 @@ void Console_Task(void const * pvParameters)
 								break;
 							case 0x05://档位加
 								do_work_ctl(Lcd_Button_to_Level_Up);
-								osDelay(500);														//延时 防止点击过快
 								cnt_heartbag = 0;												//发送心跳清空心跳计数器
 								gGlobalData.heartbag_flage = 1;
 								break;
 								//level  -5
 							case 0x06://档位减
 								do_work_ctl(Lcd_Button_to_Level_Down);
-								osDelay(500);														//延时 防止点击过快
 								cnt_heartbag = 0;												//发送心跳清空心跳计数器
 							  gGlobalData.heartbag_flage = 1;
 								break;
@@ -2258,9 +2240,10 @@ void Console_Task(void const * pvParameters)
 	}//for循环
 }
 
+          		     
 bool Get_ADC1_Hex(void)	
 {
-	RecRmsl=Gets_Rmsl(gADC1_BUF,400);
+	RecRmsl=Gets_Rmsl(gADC1_Current_FeedBack_BUF,ADC1_CurrentNUM );
 	return true;
 //	//static uint16_t pt[AD1_NUM*10];
 //	int i,j ;
@@ -2275,8 +2258,6 @@ bool Get_ADC1_Hex(void)
 //			temp_adc1[j] =  gADC1_DMA_BUF[j*AD1_NUM+i]; 				//取出每一次的值
 //		}
 //		if(gGlobalData.curWorkMode == WORK_MODE_ZL)
-//			RecRmsl=Gets_Rmsl(temp_adc1,N_NUM);
-//		RecMAX=(Gets_Maximum(temp_adc1,N_NUM)*gREFVOL_VAL)/65535;
 //		gGlobalData.currentNet=Gets_Average(temp_adc1,N_NUM);	
 //		*(gADC1_VALUE+i) = Gets_Average(temp_adc1,N_NUM);	//计算平均值
 //		*(gADC1_VALUE_F+i) = ((*(gADC1_VALUE+i))*gREFVOL_VAL)/65535;   //gREFVOL_VAL
@@ -2329,9 +2310,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-//	static uint8_t val[2];
-//	static uint16_t Vol_De;
-//	static int16_t Vol;
 	if(GPIO_Pin==GPIO_PIN_2)	//f2
 	{	
 	}

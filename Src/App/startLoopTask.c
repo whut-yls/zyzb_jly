@@ -51,7 +51,6 @@ void startLoopTask(void const * argument)
 //	AD9833_AmpSet(0xff); //设置幅值，幅值最大 255
 	
 	/*开始adc dma循环采集*/
-//	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)gADC1_DMA_BUF,N_NUM* AD1_NUM);
 	
 #if 0
 	/*气压传感器初始化*/
@@ -70,10 +69,10 @@ while(1)
 			{
 				case 1: 
 						if(gGlobalData.curWorkState==WORK_PAUSE||gGlobalData.curWorkState==WORK_STOP){
-								do_work_ctl(1);
+							do_work_ctl(Lcd_Button_to_Start);
 						}
 						else{
-								do_work_ctl(2);
+							do_work_ctl(Lcd_Button_to_Pause);
 						}
 						cnt_heartbag = 0;												//发送心跳清空心跳计数器
 						gGlobalData.heartbag_flage = 1; 						
@@ -82,12 +81,12 @@ while(1)
 						Send_Fix_Ack(35,STATUS_OK,"Request CALL!");
 					break;
 				case 3: 
-						do_work_ctl(4);  //加档
+						do_work_ctl(Lcd_Button_to_Level_Up);  //加档
 						cnt_heartbag = 0;												//发送心跳清空心跳计数器	
 						gGlobalData.heartbag_flage = 1; 				
 					break;
 				case 4: 
-					 do_work_ctl(5);  //减档
+					 do_work_ctl(Lcd_Button_to_Level_Down);  //减档
 					 cnt_heartbag = 0;												//发送心跳清空心跳计数器
 					 gGlobalData.heartbag_flage = 1; 	
 				break;
@@ -97,9 +96,10 @@ while(1)
 			}
 
 		}		
-		if(gGlobalData.current_time == 1){			
+		if(gGlobalData.ZL_Feedback_To_Down_Level == 1){			
 			do_work_ctl(Lcd_Button_to_Level_Down);
-			gGlobalData.current_time = 0;
+			gGlobalData.ZL_Feedback_To_Down_Level = 0;
+			printf("\r\n***********电流开始变大***电流值为：%d(ua)***********\r\n***********预设电流值为：%d(ua)***********\r\n",RecRmsl*5,RecRmsl_old*5);
 		}		
 #if 0
 		/*温度湿度采集*/
@@ -197,43 +197,14 @@ while(1)
 		{
 			ledCnt=0;
 			run_led();
-#if 0                    //测试继电器子板切换下发           
-			if(gGlobalData.curWorkState == WORK_START){
-            	set_channle_status(gGlobalData.channelPos,DIR_OUT,sON);
-                osDelay(50);
-                set_channle_status(gGlobalData.channelPos+8,DIR_IN,sON);
-                osDelay(1000);
-//            	set_channle_status(gGlobalData.channelPos,DIR_OUT,sOFF);
-//                osDelay(50);
-//                set_channle_status(gGlobalData.channelPos+8,DIR_IN,sOFF);
-                HAL_PCA9554_outputAll(0);
-                osDelay(1000);
-            	set_channle_status(gGlobalData.channelPos+8,DIR_OUT,sON);
-                osDelay(50);
-                set_channle_status(gGlobalData.channelPos,DIR_IN,sON);
-                osDelay(1000);
-                HAL_PCA9554_outputAll(0);
-                
-            }
-			else if(gGlobalData.curWorkState == WORK_STOP){
-            
-            }
-			else if(gGlobalData.curWorkState == WORK_PAUSE)
-					 HAL_PCA9554_init();  
-            
-			if(gGlobalData.channelPos == 8)
-					gGlobalData.channelPos =17;
-			else if(gGlobalData.channelPos == 24)
-				 gGlobalData.channelPos=1; 
-			else
-					gGlobalData.channelPos++;
-#endif
-            
 		}
 		if(pingCnt>=20)
 		{
 			pingCnt=0;
-			gGlobalData.Send_Ping_Task=true;
+			if(gGlobalData.netKind == 3)
+				gGlobalData.Send_Ping_Task=true;
+			if(gGlobalData.curWorkMode == WORK_MODE_ZL && gGlobalData.curWorkState == WORK_START)
+				printf("\r\n当前治疗电流值为：%d(ua)\r\n",RecRmsl*5);
 		}
 //		
 		SensorCnt1++;

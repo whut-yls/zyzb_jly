@@ -36,7 +36,8 @@ int Init_All_Parameter(void)
 	gGlobalData.ResetStatus=true;
 	gGlobalData.cur_heart_state=UNKNOWN;
 	gGlobalData.Auto_Level_Ctl = 0;                                                //初始档位为0
-	gGlobalData.current_time = 0;
+	gGlobalData.ZL_Feedback_To_Down_Level = 0;
+	
 	for(i=0;i<2;i++)
 	{
 		gGlobalData.useWorkArg[i].workMode=gDeviceParam.workArg[i].workMode;
@@ -60,7 +61,16 @@ int Init_All_Parameter(void)
 		}
 	}
 	
+	gGlobalData.current_treatNums = 0;
+	gGlobalData.useWorkArg[0].timeTreat = 0;
+	gGlobalData.useWorkArg[0].waitTime = 0;
 
+
+	gDeviceParam.heartRate=15;    //心跳间隔15s
+	gGlobalData.useWorkArg[gGlobalData.current_treatNums].level=0;
+	gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat=0;
+	gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat=0;
+	
 	gGlobalData.rj45Status=false;
 	gGlobalData.wifiStatus=false;
 	gGlobalData.yd4gStatus=false;

@@ -275,11 +275,6 @@
           <WinNumber>1</WinNumber>
           <ItemText>RecSen</ItemText>
         </Ww>
-        <Ww>
-          <count>22</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>adc3temp,0x0A</ItemText>
-        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -295,17 +290,27 @@
         <Ww>
           <count>2</count>
           <WinNumber>2</WinNumber>
-          <ItemText>max,0x0A</ItemText>
+          <ItemText>gADC1_Current_FeedBack_BUF,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>2</WinNumber>
-          <ItemText>gADC1_BUF,0x0A</ItemText>
+          <ItemText>DMA1</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>2</WinNumber>
-          <ItemText>min,0x0A</ItemText>
+          <ItemText>htim1,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>cntdma,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>RecRmsl*5,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

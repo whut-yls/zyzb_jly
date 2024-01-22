@@ -247,14 +247,37 @@ void DMA1_Stream3_IRQHandler(void)
 /**
   * @brief This function handles DMA1 stream4 global interrupt.
   */
+
 void DMA1_Stream4_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream4_IRQn 0 */
-
   /* USER CODE END DMA1_Stream4_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc1);
+
   /* USER CODE BEGIN DMA1_Stream4_IRQn 1 */
-	Get_ADC1_Hex();
+	if((DMA1->HISR & DMA_FLAG_TCIF0_4) != RESET)      																					//传输完成
+	{
+		if(gGlobalData.curWorkMode == WORK_MODE_ZL && gGlobalData.curWorkState == WORK_START)	
+			Get_ADC1_Hex();
+		DMA1->HIFCR = DMA_FLAG_TCIF0_4;
+	}
+	if((DMA1->HISR & DMA_FLAG_HTIF0_4) != RESET)																								//半传输完成
+	{	
+		DMA1->HIFCR = DMA_FLAG_HTIF0_4;
+	}	
+		
+	if((DMA1->HISR & DMA_FLAG_TEIF0_4) != RESET)
+	{
+		/* 清除标志 */
+		DMA1->HIFCR = DMA_FLAG_TEIF0_4;
+	}
+
+	/* 直接模式错误中断 */
+	if((DMA1->HISR & DMA_FLAG_DMEIF0_4) != RESET)
+	{
+		/* 清除标志 */
+		DMA1->HIFCR = DMA_FLAG_DMEIF0_4;
+	}	
+	 HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE END DMA1_Stream4_IRQn 1 */
 }
 

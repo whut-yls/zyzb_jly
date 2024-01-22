@@ -57,20 +57,20 @@ void MX_TIM12_Init(uint32_t _ulFreq)
 	
 	if (_ulFreq < 1000)
 	{
-		usPrescaler = 240 - 1;					/* 分频比 = 100 */
+		usPrescaler = 240 - 1;														/* 分频比 = 100 */
 		usPeriod =  (uiTIMxCLK / 24000) / _ulFreq  - 1;		/* 自动重装的值 */
 	}
 	else	/* 大于1k的频率，无需分频 */
 	{
-		usPrescaler = 24-1;					/* 分频比 = 1 */
-		usPeriod = (uiTIMxCLK/2400) / _ulFreq - 1;	/* 自动重装的值 */
+		usPrescaler = 24-1;																/* 分频比 = 1 */
+		usPeriod = (uiTIMxCLK/2400) / _ulFreq - 1;				/* 自动重装的值  240M/24/100 = 10Khz  =0.1ms      */
 	}	
 	
 	
 #if 1	
   htim12.Instance = TIM12;
   htim12.Init.Prescaler =usPrescaler;              						//定时器6最大只能配到 240M/120/5=400kHz    一组数据100个 频率=400kHz/100=4khz   周期：1/4k s = 0.25ms 在不发数据的情况下
-  htim12.Init.CounterMode = TIM_COUNTERMODE_UP;					//定时器6最大只能配到 240M/240/5=200kHz    一组数据100个 频率=200kHz/100=2khz   周期：1/2k s = 0.5ms  在发数据的情况下
+  htim12.Init.CounterMode = TIM_COUNTERMODE_UP;								//定时器6最大只能配到 240M/240/5=200kHz    一组数据100个 频率=200kHz/100=2khz   周期：1/2k s = 0.5ms  在发数据的情况下
   htim12.Init.Period =usPeriod;
   htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 
@@ -116,22 +116,35 @@ void MX_TIM12_Init(uint32_t _ulFreq)
 
 void MX_TIM1_Init(uint32_t _ulFreq)    //240M
 {
+	uint16_t usPeriod;
+	uint16_t usPrescaler;	
 
 	/* 使能时钟 */  
-	__HAL_RCC_TIM1_CLK_ENABLE();
-	
+	__HAL_RCC_TIM1_CLK_ENABLE();	
 
-  HAL_TIM_Base_DeInit(&htim1);
-    
-  htim1.Instance = TIM1;              
-	if(gGlobalData.useWorkArg[0].freqTreat <= 1000){
-		htim1.Init.Period            = 1199;    //10KHZ  2399
-		htim1.Init.Prescaler         = 20-1;
+	if(_ulFreq <= 20){
+		usPeriod           = 2399;    //1KHZ 
+		usPrescaler        = 100-1;			
+	}	
+	else if(_ulFreq <= 50){
+		usPeriod           = 2399;    //5KHZ 
+		usPrescaler        = 20-1;			
 	}
-	else{
-		htim1.Init.Period            = 1199;    //100KHZ  239
-		htim1.Init.Prescaler         = 10-1;
+	else if(_ulFreq <= 1000){
+		usPeriod           = 1199;    //10KHZ 
+		usPrescaler        = 20-1;				
 	}
+	else if(_ulFreq <= 2000){
+		usPeriod           = 1199;    //20KHZ 
+		usPrescaler        = 10-1;			
+	}
+	else if(_ulFreq <= 10000){
+		usPeriod           = 1199;    //50KHZ 
+		usPrescaler        = 4-1;			
+	}	
+	htim1.Instance = TIM1; 
+	htim1.Init.Period            = usPeriod;    
+	htim1.Init.Prescaler         = usPrescaler;
 	htim1.Init.ClockDivision     = 0;
 	htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
 	htim1.Init.RepetitionCounter = 0;
@@ -152,8 +165,7 @@ void MX_TIM1_Init(uint32_t _ulFreq)    //240M
 	{
 	Error_Handler( );
 	}	
-//   /* 使能定时器 */
-//  HAL_TIM_Base_Start(&htim1);	
+	
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
@@ -168,6 +180,13 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
 
   }
+  if(tim_baseHandle->Instance==TIM1)
+  {
+
+		__HAL_RCC_TIM1_CLK_ENABLE();
+
+
+  }	
 }
 
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
@@ -181,6 +200,13 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     HAL_NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
 
   }
+  if(tim_baseHandle->Instance==TIM1)
+  {
+
+		__HAL_RCC_TIM1_CLK_DISABLE();
+		
+
+  }	
 }
 
 /* USER CODE BEGIN 1 */

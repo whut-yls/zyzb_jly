@@ -18,8 +18,8 @@
 #include "Wt2003hx.h"
 #include "timer.h"
 #include "dac8831.h"
+#include "myadc.h"
 
-#define PI acos(-1)
 /**
 xSemaphoreTake(xSemaphore, portMAX_DELAY);//pdTRUE/pdFALSE(timeout)
 xSemaphoreGive(xSemaphore);	
@@ -569,8 +569,6 @@ int SendPlusePressData(void)
 	gGlobalData.Send_Data_Task=true;
 	return 1;
 }
-
-
 	
 //工作模式控制
 void do_work_ctl(uint8_t workMode)
@@ -612,8 +610,8 @@ void do_work_ctl(uint8_t workMode)
 					send_LcdOutStatus(0);
 					if(gGlobalData.curWorkMode == WORK_MODE_ZT)
 					{
-							isCollect=false;//2023.03.31 ZKM
-							Collect_Data_state =true;
+						isCollect=false;//2023.03.31 ZKM
+						Collect_Data_state =true;
 					} 
 			} 
       gGlobalData.Auto_Level_Ctl = 0;   
@@ -677,10 +675,11 @@ void do_work_ctl(uint8_t workMode)
 				send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
-				osDelay(100);
-				Send_LcdVoltage(5.84f*Level);	
-				if(gGlobalData.current_time == 0)
-					RecRmsl_old = Gets_Rmsl_update(RecRmsl);               //获取最新反馈值
+				osDelay(500);
+//				Send_LcdVoltage(5.84f*Level);	
+				Send_LcdVoltage(4.20f*Level);	
+				if(gGlobalData.ZL_Feedback_To_Down_Level == 0)
+					RecRmsl_old = Gets_Rmsl_update(RecRmsl);               //获取最新反馈值，人为加减档时重新赋值
 			} 			
 			break;
 		case Lcd_Button_to_Level_Down:
@@ -692,9 +691,10 @@ void do_work_ctl(uint8_t workMode)
 				send_treatSel(gGlobalData.useWorkArg[gGlobalData.current_treatNums].freqTreat,
 											Level,
 											(gGlobalData.useWorkArg[gGlobalData.current_treatNums].timeTreat)/60);
-				osDelay(100);
-				Send_LcdVoltage(5.84f*Level);
-				if(gGlobalData.current_time == 0)
+				osDelay(500);
+//				Send_LcdVoltage(5.84f*Level);
+				Send_LcdVoltage(4.20f*Level);
+				if(gGlobalData.ZL_Feedback_To_Down_Level == 0)
 					RecRmsl_old = Gets_Rmsl_update(RecRmsl);
 			}  			
 			break;
@@ -721,59 +721,28 @@ uint16_t Gets_Average(uint16_t *pt,int l)
 			if((uint32_t)(pt[i])<min)min=(uint32_t)(pt[i]);
 			sum = sum + (uint32_t)(pt[i]);
 			nums++;
-		}
-		
+		}		
 	}
-	if(nums == 0) return 0;
+	if(nums == 0) 
+		return 0;
 	else
 		return (uint16_t)((sum-max-min)/(nums-2));
 }
 
-uint16_t Gets_Maximum(uint16_t *pt,int l)
-{
-	//uint16_t *p = pt;
-	uint16_t nums = 0;
-	uint32_t sum = 0;
-	uint32_t max=0;
-	uint32_t min=999999999;
-//	uint16_t buf_temp[l];
-//	memcpy(buf_temp, pt, l);
-	for(int i = 0; i < l; ++i)
-	{
-		if(pt[i] != 0)
-		{
-			if((uint32_t)(pt[i])>max)max=(uint32_t)(pt[i]);
-			if((uint32_t)(pt[i])<min)min=(uint32_t)(pt[i]);
-			sum = sum + (uint32_t)(pt[i]);
-			nums++;
-		}
-		
-	}
-	if(nums == 0) return 0;
-	else
-//		return (uint16_t)((sum-max-min)/(nums-2));
-		return max;
-}
 
-uint16_t Gets_Rmsl(uint16_t *pt,int l)
+uint16_t Gets_Rmsl(uint16_t *pt,int l)         //计算有效值
 {
 	int16_t Rec_RmsTemp = 0;
-	static uint32_t value = 0, sum = 0;
+	static uint32_t sum = 0;
 	static uint16_t rms = 0;
-	int32_t max=-999999,min=99999;
 	
 	for(uint16_t i = 0 ; i < l ;i++){
-		Rec_RmsTemp = *(pt+i)*3300/65535-330;
-		if((Rec_RmsTemp)>max)max=Rec_RmsTemp;
-		if((Rec_RmsTemp)<min)min=Rec_RmsTemp;	
-		value = Rec_RmsTemp * Rec_RmsTemp;
-		sum += value;
+		Rec_RmsTemp = *(pt+i)*3300/65535-1650;   
+		sum += Rec_RmsTemp * Rec_RmsTemp;
 	}	
-	sum = sum - max*max - min*min;
-		
-	rms = (uint16_t)sqrt(sum/(l-2));
+	rms = (uint16_t)sqrt(sum/l);
 	sum=0;
-	return rms-5;
+	return rms;
 }
 uint16_t Gets_Rmsl_update(uint16_t data){
 	return data;
@@ -800,6 +769,7 @@ void general_heartBag(int fun, int status, int netKind, int workState, int timeL
 	cJSON_AddNumberToObject(item_work ,KEY_WORK_STATE, workState);
 	cJSON_AddNumberToObject(item_work ,KEY__WORK_TIME_LAST, timeLast);	
 	cJSON_AddNumberToObject(item_work ,KEY__WORK_CURRENT,gGlobalData.currentNet);
+	cJSON_AddNumberToObject(item_work ,KEY__ZL_CURRENT,RecRmsl*5);      //治疗人体流过的电流有效值 单位ua  2024/1/22
 	
 	item_env = cJSON_AddObjectToObject(root,KEY_ENV);
 	cJSON_AddNumberToObject(item_env ,KEY_TEMP,(int) (gSensorData1.RHt*100+0.5f)/100.0);    //保留两位小数点

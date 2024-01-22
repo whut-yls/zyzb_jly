@@ -188,6 +188,7 @@
 #define	KEY_HARD_VER	"hardwareVersion"	//硬件版本
 #define KEY_FLAG  "flage"      //设备标识
 #define KEY__WORK_CURRENT "electricity"    //主板总电流
+#define KEY__ZL_CURRENT "ZLcurrent"    //主板总电流
 
 //采集方案相关
 #define KEY_DATA_UPTIME  "interval" //数据上传间隔
@@ -423,7 +424,7 @@ typedef struct __RUN_Global    /*运行全局参数*/
 	bool Wifi_set;
 	uint16_t current_treatNums;
 	uint16_t  Alltime;
-	uint16_t current_time;        //未用到该参数
+	uint16_t ZL_Feedback_To_Down_Level;        //控制减档操作
 
 
 	uint8_t ack_time[20];

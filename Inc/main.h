@@ -281,6 +281,7 @@ extern bool isCollect;
 extern bool Collect_Data_state;
 extern uint16_t RecRmsl;  //ADC1采样治疗反馈
 extern uint16_t RecRmsl_old;  //ADC1采样治疗反馈
+
 extern osThreadId ethernetTaskTaskHandle;
 #define W25QX_nCS(x)  HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,x ? GPIO_PIN_SET : GPIO_PIN_RESET) 
 /* USER CODE BEGIN Private defines */

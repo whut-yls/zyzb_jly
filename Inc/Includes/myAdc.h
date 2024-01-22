@@ -24,6 +24,9 @@
 #define	N_NUM							30						//连续采集多少次 
 #define AD1_NUM			  		1
 #define AD3_NUM			  		1
+
+#define ADC1_CurrentNUM  300
+
 //#define	AD_ALL_NUM				AD1_NUM			//AD1_NUM+..
 	 
 extern ADC_HandleTypeDef hadc1;
@@ -39,7 +42,7 @@ extern DMA_HandleTypeDef hdma_adc3;
 extern uint16_t gADC3_DMA_BUF[AD3_NUM*N_NUM];
 extern uint16_t gADC3_VALUE[AD3_NUM];
 extern uint16_t gADC3_VALUE_F[AD3_NUM];
-
+extern uint16_t gADC1_Current_FeedBack_BUF[ADC1_CurrentNUM];
 
 /**interface function**/	 
 
