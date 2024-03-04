@@ -21,18 +21,29 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.7.0
 Dialog DLL:      TCM.DLL V1.42.0.0
  
 <h2>Project:</h2>
-F:\Working\中医\中医装备代码8-20出差回\2023-12-9-JLY\MDK-ARM\motorDriver.uvprojx
+F:\Working\中医\中医装备代码8-20出差回\2023-1-22-JLY\MDK-ARM\motorDriver.uvprojx
 Project File Date:  01/06/2024
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'f:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'motorDriver'
-compiling timer.c...
+compiling startLoopTask.c...
+..\Src\App\startLoopTask.c(102): warning:  #870-D: invalid multibyte character sequence
+  			printf("\r\n***********The current is increasing***current value锛?%d(ua)***********\r\n***********Preset current value is锛?%d(ua)***********\r\n",RecRmsl*5,RecRmsl_old*5);
+..\Src\App\startLoopTask.c(102): warning:  #870-D: invalid multibyte character sequence
+  			printf("\r\n***********The current is increasing***current value锛?%d(ua)***********\r\n***********Preset current value is锛?%d(ua)***********\r\n",RecRmsl*5,RecRmsl_old*5);
+..\Src\App\startLoopTask.c(36): warning:  #177-D: variable "temp"  was declared but never referenced
+  	uint8_t temp[8]={0x00};
+..\Src\App\startLoopTask.c(37): warning:  #177-D: variable "t1"  was declared but never referenced
+  	uint32_t t1,f1;
+..\Src\App\startLoopTask.c(37): warning:  #177-D: variable "f1"  was declared but never referenced
+  	uint32_t t1,f1;
+..\Src\App\startLoopTask.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=156908 RO-data=2280 RW-data=1148 ZI-data=315236  
+Program Size: Code=157896 RO-data=2292 RW-data=1148 ZI-data=315236  
 FromELF: creating hex file...
 After Build - User command #1: fromelf --bin -o ".\bin_file\motorDriver.bin" "motorDriver\motorDriver.axf"
-"motorDriver\motorDriver.axf" - 0 Error(s), 0 Warning(s).
+"motorDriver\motorDriver.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -55,7 +66,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.4.0
-Build Time Elapsed:  00:00:06
+Build Time Elapsed:  00:00:07
 </pre>
 </body>
 </html>

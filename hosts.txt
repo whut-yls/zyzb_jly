@@ -1,0 +1,45 @@
+# Copyright (c) 1993-2009 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+
+# localhost name resolution is handled within DNS itself.
+#	127.0.0.1       localhost
+#	::1             localhost
+140.82.113.4 github.com
+199.232.69.194 github.global.ssl.fastly.net
+185.199.108.153 assets-cdn.github.com
+185.199.109.153 assets-cdn.github.com
+185.199.110.153 assets-cdn.github.com
+185.199.111.153 assets-cdn.github.com
+
+commit 156a40c679f7dc6a271ab0cf319cb3b4e5eb6a27 (HEAD -> master)
+Author: whut-Yls <2590202681@qq.com>
+Date:   Mon Jan 22 19:57:24 2024 +0800
+
+    submit all control level by feedback update
+
+commit 4baf72908b56d20d36d0f23c7fd36cbdc83eb564
+Author: whut-Yls <2590202681@qq.com>
+Date:   Thu Jan 11 14:40:42 2024 +0800
+
+    submit all of feedback input and level
+
+commit c3aa07972e9f2d1077601a594849a609406f98eb (origin/master)
+Author: ‘whut-yls’ <‘2590201681@qq.com’>
+Date:   Thu Dec 14 18:49:51 2023 +0800
+
+    submit ALL

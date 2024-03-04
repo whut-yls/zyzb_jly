@@ -180,7 +180,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
 
   }
-  if(tim_baseHandle->Instance==TIM1)
+  else if(tim_baseHandle->Instance==TIM1)
   {
 
 		__HAL_RCC_TIM1_CLK_ENABLE();
@@ -200,7 +200,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     HAL_NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
 
   }
-  if(tim_baseHandle->Instance==TIM1)
+  else if(tim_baseHandle->Instance==TIM1)
   {
 
 		__HAL_RCC_TIM1_CLK_DISABLE();

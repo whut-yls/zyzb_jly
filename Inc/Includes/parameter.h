@@ -188,7 +188,7 @@
 #define	KEY_HARD_VER	"hardwareVersion"	//硬件版本
 #define KEY_FLAG  "flage"      //设备标识
 #define KEY__WORK_CURRENT "electricity"    //主板总电流
-#define KEY__ZL_CURRENT "ZLcurrent"    //主板总电流
+#define KEY__ZL_CURRENT "ZLcurrent"    //过人体反馈电流
 
 //采集方案相关
 #define KEY_DATA_UPTIME  "interval" //数据上传间隔

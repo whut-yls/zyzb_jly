@@ -369,7 +369,7 @@ int main(void)
 	/* Initialize all configured peripherals */ 
   MX_GPIO_Init();
 
-//  MX_ADC1_Init();
+//  MX_ADC1_Init(500);
 	MX_ADC3_Init();
 //  MX_ETH_Init();
 //  MX_I2C2_Init();         //屏蔽掉了原始i2c，新写了模拟i2c来控制，i2c有bug
@@ -736,6 +736,10 @@ void MX_ADC1_Init(uint32_t _ulFreq)
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
   hadc1.Init.OversamplingMode = DISABLE;								//过采样模式关闭
+	if (HAL_ADC_DeInit(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
 	if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -814,6 +818,10 @@ static void MX_ADC3_Init(void)
   hadc3.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc3.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
   hadc3.Init.OversamplingMode = DISABLE;
+  if (HAL_ADC_DeInit(&hadc3) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_ADC_Init(&hadc3) != HAL_OK)
   {
     Error_Handler();

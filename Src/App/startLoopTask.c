@@ -99,7 +99,7 @@ while(1)
 		if(gGlobalData.ZL_Feedback_To_Down_Level == 1){			
 			do_work_ctl(Lcd_Button_to_Level_Down);
 			gGlobalData.ZL_Feedback_To_Down_Level = 0;
-			printf("\r\n***********电流开始变大***电流值为：%d(ua)***********\r\n***********预设电流值为：%d(ua)***********\r\n",RecRmsl*5,RecRmsl_old*5);
+			printf("\r\n***********The current is increasing***current value：%d(ua)***********\r\n***********Preset current value is：%d(ua)***********\r\n",RecRmsl*5,RecRmsl_old*5);
 		}		
 #if 0
 		/*温度湿度采集*/
@@ -204,7 +204,7 @@ while(1)
 			if(gGlobalData.netKind == 3)
 				gGlobalData.Send_Ping_Task=true;
 			if(gGlobalData.curWorkMode == WORK_MODE_ZL && gGlobalData.curWorkState == WORK_START)
-				printf("\r\n当前治疗电流值为：%d(ua)\r\n",RecRmsl*5);
+				printf("\r\nCurrent therapy current value is:%d(ua)\r\n",RecRmsl*5);
 		}
 //		
 		SensorCnt1++;
