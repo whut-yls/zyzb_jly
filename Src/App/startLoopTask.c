@@ -99,7 +99,7 @@ while(1)
 		if(gGlobalData.ZL_Feedback_To_Down_Level == 1){			
 			do_work_ctl(Lcd_Button_to_Level_Down);
 			gGlobalData.ZL_Feedback_To_Down_Level = 0;
-			printf("\r\n***********The current is increasing***current value：%d(ua)***********\r\n***********Preset current value is：%d(ua)***********\r\n",RecRmsl*5,RecRmsl_old*5);
+			printf("\r\n****The current is increasing:%d(ua)****Current Valude:%d(ua)\r\n",RecRmsl*5,RecRmsl_old*5);
 		}		
 #if 0
 		/*温度湿度采集*/
